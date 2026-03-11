@@ -1,7 +1,9 @@
 package com.ishimwe.digitalmarriagesystem.repository;
 
-import com.ishimwe.digitalmarriagesystem.model.MarriageApplication;
+import com.ishimwe.digitalmarriagesystem.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface MarriageApplicationRepository extends JpaRepository<MarriageApplication, Long> {
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
 }

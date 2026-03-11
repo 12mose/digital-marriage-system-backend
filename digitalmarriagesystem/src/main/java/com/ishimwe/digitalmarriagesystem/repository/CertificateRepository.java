@@ -1,15 +1,9 @@
-package com.ishimwe.digitalmarriagesystem.service;
+package com.ishimwe.digitalmarriagesystem.repository;
 
-import com.ishimwe.digitalmarriagesystem.model.User;
-import java.util.List;
+import com.ishimwe.digitalmarriagesystem.model.Certificate;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface UserService {
-
-    User saveUser(User user);
-
-    List<User> getAllUsers();
-
-    User getUserById(Long id);
-
-    void deleteUser(Long id);
+@Repository
+public interface CertificateRepository extends JpaRepository<Certificate, Long> {
 }

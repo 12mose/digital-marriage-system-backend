@@ -15,4 +15,29 @@ public class AuditLog {
     private LocalDateTime actionDate;
 
     public AuditLog(){}
+
+    public Long getLogId() {
+        return logId;
+    }
+
+    public void setLogId(Long logId) {
+        this.logId = logId;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public LocalDateTime getActionDate() {
+        return actionDate;
+    }
+
+    public void setActionDate(LocalDateTime actionDate) {
+        this.actionDate = actionDate;
+    }
+}
 }
