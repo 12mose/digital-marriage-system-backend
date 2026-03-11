@@ -31,13 +31,4 @@ public class AuditLog {
     public void setAction(String action) {
         this.action = action;
     }
-
-    public LocalDateTime getActionDate() {
-        return actionDate;
-    }
-
-    public void setActionDate(LocalDateTime actionDate) {
-        this.actionDate = actionDate;
-    }
-}
 }
