@@ -1,0 +1,69 @@
+### ========================================
+### CRUD TESTING FOR USERS
+### ========================================
+
+### 1. CREATE a new User (POST)
+POST http://localhost:8081/api/users
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "nationalId": "1199080000000000",
+  "password": "password123",
+  "role": "CITIZEN"
+}
+
+###
+
+### 2. READ all Users (GET)
+GET http://localhost:8081/api/users
+Accept: application/json
+
+###
+
+### 3. READ a single User by ID (GET)
+### (Assuming the created user got ID 1)
+GET http://localhost:8081/api/users/1
+Accept: application/json
+
+###
+
+### 4. DELETE a User (DELETE)
+### (Assuming the created user got ID 1)
+DELETE http://localhost:8081/api/users/1
+
+###
+
+
+### ========================================
+### CRUD TESTING FOR DOCUMENTS
+### ========================================
+
+### 1. CREATE a new Document (POST)
+POST http://localhost:8081/api/documents
+Content-Type: application/json
+
+{
+  "documentType": "ID Card",
+  "filePath": "/uploads/id-card.pdf",
+  "applicationId": 1
+}
+
+###
+
+### 2. READ all Documents (GET)
+GET http://localhost:8081/api/documents
+Accept: application/json
+
+###
+
+### 3. READ a single Document by ID (GET)
+GET http://localhost:8081/api/documents/1
+Accept: application/json
+
+###
+
+### 4. DELETE a Document (DELETE)
+DELETE http://localhost:8081/api/documents/1
