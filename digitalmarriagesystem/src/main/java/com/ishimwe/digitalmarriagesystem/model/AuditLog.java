@@ -13,6 +13,7 @@ public class AuditLog {
 
     private String action;
     private LocalDateTime actionDate;
+    private String userEmail;
 
     public AuditLog(){}
 
@@ -30,5 +31,21 @@ public class AuditLog {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public LocalDateTime getActionDate() {
+        return actionDate;
+    }
+
+    public void setActionDate(LocalDateTime actionDate) {
+        this.actionDate = actionDate;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 }

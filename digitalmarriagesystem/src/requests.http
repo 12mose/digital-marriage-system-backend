@@ -1,48 +1,86 @@
 ### ========================================
-### CRUD TESTING FOR USERS
+### AUTHENTICATION & REGISTRATION
 ### ========================================
 
-### 1. CREATE a new User (POST)
-POST http://localhost:8081/api/users
+### 1. REGISTER a new ADMIN User
+POST http://localhost:8081/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Admin",
+  "lastName": "User",
+  "email": "admin@example.com",
+  "password": "adminpassword",
+  "role": "ADMIN",
+  "nationalId": "1199080000000001"
+}
+
+###
+
+### 2. REGISTER a new regular USER
+POST http://localhost:8081/api/auth/register
 Content-Type: application/json
 
 {
   "firstName": "John",
   "lastName": "Doe",
   "email": "john.doe@example.com",
-  "nationalId": "1199080000000000",
   "password": "password123",
-  "role": "CITIZEN"
+  "role": "USER",
+  "nationalId": "1199080000000002"
 }
 
 ###
 
-### 2. READ all Users (GET)
+### 3. LOGIN as ADMIN (To get Token)
+# @name adminLogin
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "adminpassword"
+}
+
+###
+
+### 4. LOGIN as regular USER (To get Token)
+# @name userLogin
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+
+###
+
+### ========================================
+### SECURED CRUD TESTING FOR USERS (ADMIN ONLY)
+### ========================================
+
+### 1. READ all Users (GET) - Requires ADMIN Token
 GET http://localhost:8081/api/users
+Authorization: Bearer {{adminLogin.response.body.token}}
 Accept: application/json
 
 ###
 
-### 3. READ a single User by ID (GET)
-### (Assuming the created user got ID 1)
-GET http://localhost:8081/api/users/1
+### 2. READ all Users (GET) - Will FAIL for regular USER
+GET http://localhost:8081/api/users
+Authorization: Bearer {{userLogin.response.body.token}}
 Accept: application/json
 
 ###
 
-### 4. DELETE a User (DELETE)
-### (Assuming the created user got ID 1)
-DELETE http://localhost:8081/api/users/1
-
-###
-
-
 ### ========================================
-### CRUD TESTING FOR DOCUMENTS
+### SECURED CRUD TESTING FOR DOCUMENTS
 ### ========================================
 
-### 1. CREATE a new Document (POST)
+### 1. CREATE a new Document (POST) - Requires Token
 POST http://localhost:8081/api/documents
+Authorization: Bearer {{userLogin.response.body.token}}
 Content-Type: application/json
 
 {
@@ -53,17 +91,19 @@ Content-Type: application/json
 
 ###
 
-### 2. READ all Documents (GET)
+### 2. READ all Documents (GET) - Requires Token
 GET http://localhost:8081/api/documents
+Authorization: Bearer {{userLogin.response.body.token}}
 Accept: application/json
 
 ###
 
-### 3. READ a single Document by ID (GET)
-GET http://localhost:8081/api/documents/1
+### ========================================
+### SECURED CRUD TESTING FOR AUDIT LOGS (ADMIN ONLY)
+### ========================================
+
+### 1. READ all Audit Logs (GET) - Requires ADMIN Token
+GET http://localhost:8081/api/auditlogs
+Authorization: Bearer {{adminLogin.response.body.token}}
 Accept: application/json
 
-###
-
-### 4. DELETE a Document (DELETE)
-DELETE http://localhost:8081/api/documents/1

@@ -11,13 +11,21 @@ import java.util.List;
 public class AuditLogServiceImpl implements AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
+    private final com.ishimwe.digitalmarriagesystem.security.SecurityUtils securityUtils;
 
-    public AuditLogServiceImpl(AuditLogRepository auditLogRepository) {
+    public AuditLogServiceImpl(AuditLogRepository auditLogRepository, com.ishimwe.digitalmarriagesystem.security.SecurityUtils securityUtils) {
         this.auditLogRepository = auditLogRepository;
+        this.securityUtils = securityUtils;
     }
 
     @Override
     public AuditLog saveAuditLog(AuditLog auditLog) {
+        if (auditLog.getActionDate() == null) {
+            auditLog.setActionDate(java.time.LocalDateTime.now());
+        }
+        if (auditLog.getUserEmail() == null) {
+            auditLog.setUserEmail(securityUtils.getCurrentUserEmail());
+        }
         return auditLogRepository.save(auditLog);
     }
 
