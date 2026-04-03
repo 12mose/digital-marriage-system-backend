@@ -22,7 +22,10 @@ public class MarriageApplicationController {
     }
 
     @GetMapping
-    public List<MarriageApplication> getAllApplications() {
+    public List<MarriageApplication> getAllApplications(@RequestParam(required = false) String status) {
+        if (status != null) {
+            return marriageApplicationService.getApplicationsByStatus(status);
+        }
         return marriageApplicationService.getAllApplications();
     }
 
@@ -32,7 +35,8 @@ public class MarriageApplicationController {
     }
 
     @PutMapping("/{id}/status")
-    public MarriageApplication updateApplicationStatus(@PathVariable Long id, @RequestBody String status) {
+    public MarriageApplication updateApplicationStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> payload) {
+        String status = payload.getOrDefault("status", "").toUpperCase();
         return marriageApplicationService.updateApplicationStatus(id, status);
     }
 

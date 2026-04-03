@@ -22,7 +22,10 @@ public class MarriageController {
     }
 
     @GetMapping
-    public List<Marriage> getAllMarriages() {
+    public List<Marriage> getAllMarriages(@RequestParam(required = false) String status) {
+        if (status != null) {
+            return marriageService.getMarriagesByStatus(status);
+        }
         return marriageService.getAllMarriages();
     }
 
@@ -32,7 +35,8 @@ public class MarriageController {
     }
 
     @PutMapping("/{id}/status")
-    public Marriage updateMarriageStatus(@PathVariable Long id, @RequestBody String status) {
+    public Marriage updateMarriageStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> payload) {
+        String status = payload.getOrDefault("status", "").toUpperCase();
         return marriageService.updateMarriageStatus(id, status);
     }
 

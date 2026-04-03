@@ -14,4 +14,6 @@ public interface MarriageService {
     void deleteMarriage(Long id);
 
     Marriage updateMarriageStatus(Long id, String status);
+
+    List<Marriage> getMarriagesByStatus(String status);
 }

@@ -31,6 +31,13 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @PutMapping("/{id}/role")
+    public User updateRole(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
+        User user = userService.getUserById(id);
+        user.setRole(request.get("role").toUpperCase());
+        return userService.saveUser(user);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id){
         userService.deleteUser(id);

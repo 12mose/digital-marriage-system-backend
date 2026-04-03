@@ -51,4 +51,9 @@ public class MarriageServiceImpl implements MarriageService {
         }
         return null;
     }
+
+    @Override
+    public List<Marriage> getMarriagesByStatus(String status) {
+        return marriageRepository.findByMarriageStatus(status);
+    }
 }

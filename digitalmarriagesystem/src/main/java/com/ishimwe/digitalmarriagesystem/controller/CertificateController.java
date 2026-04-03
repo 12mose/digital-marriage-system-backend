@@ -32,7 +32,8 @@ public class CertificateController {
     }
 
     @PutMapping("/{id}/number")
-    public Certificate updateCertificateNumber(@PathVariable Long id, @RequestBody String certificateNumber) {
+    public Certificate updateCertificateNumber(@PathVariable Long id, @RequestBody java.util.Map<String, String> payload) {
+        String certificateNumber = payload.getOrDefault("certificateNumber", "");
         return certificateService.updateCertificateNumber(id, certificateNumber);
     }
 

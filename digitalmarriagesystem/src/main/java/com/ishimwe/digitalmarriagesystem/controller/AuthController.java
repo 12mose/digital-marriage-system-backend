@@ -24,32 +24,85 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.ishimwe.digitalmarriagesystem.service.EmailService emailService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, 
-                          UserRepository userRepository, PasswordEncoder passwordEncoder) {
+                          UserRepository userRepository, PasswordEncoder passwordEncoder,
+                          com.ishimwe.digitalmarriagesystem.service.EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwt = jwtUtils.generateToken(userDetails);
-        
-        User user = userRepository.findByEmail(loginRequest.getEmail()).get();
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String jwt = jwtUtils.generateToken(userDetails);
+            
+            User user = userRepository.findByEmail(loginRequest.getEmail()).get();
 
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole()));
+        } catch (org.springframework.security.authentication.DisabledException e) {
+            return ResponseEntity.status(403).body("Account not verified. Please check your email.");
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already registered.");
+        }
+        
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("CITIZEN");
+        } else {
+            user.setRole(user.getRole().toUpperCase());
+        }
+        
+        String token = java.util.UUID.randomUUID().toString();
+        user.setVerificationToken(token);
+        user.setVerified(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        
+        User savedUser = userRepository.save(user);
+        System.out.println(">>> User registered successfully in database: " + savedUser.getEmail());
+        
+        try {
+            String verificationUrl = "http://localhost:8081/api/auth/verify?token=" + token;
+            System.out.println(">>> Verification Link: " + verificationUrl);
+            
+            emailService.sendVerificationEmail(savedUser.getEmail(), token);
+        } catch (Exception e) {
+            System.err.println("Error sending email: " + e.getMessage());
+            // In production, you might want to handle this differently
+        }
+
+        return ResponseEntity.status(201).body("Registration successful. Please check your email to verify your account.");
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/verify")
+    public ResponseEntity<?> verify(@org.springframework.web.bind.annotation.RequestParam String token) {
+        java.util.Optional<User> userOpt = userRepository.findAll().stream()
+                .filter(u -> token.equals(u.getVerificationToken()))
+                .findFirst();
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setVerified(true);
+            user.setVerificationToken(null);
+            userRepository.save(user);
+            return ResponseEntity.ok("Account verified successfully. You can now login.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired verification token.");
+        }
     }
 }

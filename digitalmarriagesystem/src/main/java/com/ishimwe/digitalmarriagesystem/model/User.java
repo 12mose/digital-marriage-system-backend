@@ -16,8 +16,35 @@ public class User {
     private String password;
     private String role;
     private String nationalId;
-
+    private java.time.LocalDate birthDate;
+    private boolean verified = false;
+    private String verificationToken;
+ 
     public User(){}
+ 
+    public boolean isVerified() {
+        return verified;
+    }
+ 
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+ 
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+ 
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+ 
+    public java.time.LocalDate getBirthDate() {
+        return birthDate;
+    }
+ 
+    public void setBirthDate(java.time.LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
 
     public Long getUserId() {
         return userId;

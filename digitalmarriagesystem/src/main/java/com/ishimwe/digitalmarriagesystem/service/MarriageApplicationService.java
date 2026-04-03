@@ -14,4 +14,6 @@ public interface MarriageApplicationService {
     void deleteApplication(Long id);
 
     MarriageApplication updateApplicationStatus(Long id, String status);
+
+    List<MarriageApplication> getApplicationsByStatus(String status);
 }
