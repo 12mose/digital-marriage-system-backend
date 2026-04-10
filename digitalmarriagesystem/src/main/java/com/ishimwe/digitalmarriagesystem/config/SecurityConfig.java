@@ -25,10 +25,12 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final UserActivityFilter userActivityFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService userDetailsService, UserActivityFilter userActivityFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
+        this.userActivityFilter = userActivityFilter;
     }
 
     @Bean
@@ -37,13 +39,18 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(userActivityFilter, JwtAuthenticationFilter.class)
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**", "/", "/dashboard", "/index.html", "/dashboard.html", "/static/**").permitAll()
-                .requestMatchers("/api/users/**", "/api/auditlogs/**", "/api/reports/**").hasRole("ADMIN")
-                .requestMatchers("/api/marriages/**").hasAnyRole("ADMIN", "OFFICER")
-                .requestMatchers("/api/applications/**").hasAnyRole("ADMIN", "OFFICER", "CITIZEN")
-                .requestMatchers("/api/certificates/**").hasAnyRole("ADMIN", "OFFICER", "CITIZEN")
-                .requestMatchers("/api/documents/**").hasAnyRole("ADMIN", "OFFICER", "CITIZEN")
+                .requestMatchers("/api/auth/**", "/api/public/**", "/", "/dashboard", "/index.html", "/dashboard.html", "/verify.html", "/static/**").permitAll()
+                .requestMatchers("/api/users/search").authenticated()
+                .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                .requestMatchers("/api/auditlogs/**", "/api/reports/**").hasRole("ADMIN")
+                .requestMatchers("/api/marriages/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                .requestMatchers("/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers("/api/certificates/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers("/api/documents/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers("/api/appointments/**").authenticated()
                 .requestMatchers("/api/messages/**").authenticated()
                 .anyRequest().authenticated()
             );

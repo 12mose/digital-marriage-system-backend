@@ -33,4 +33,21 @@ public class MessageService {
     public List<Message> getInbox() {
         return messageRepository.findByReceiverEmailOrderByTimestampDesc(securityUtils.getCurrentUserEmail());
     }
+
+    public List<String> getRecentContacts() {
+        return messageRepository.findRecentContacts(securityUtils.getCurrentUserEmail());
+    }
+
+    public long getUnreadCount() {
+        return messageRepository.countUnreadMessages(securityUtils.getCurrentUserEmail());
+    }
+
+    public void markConversationRead(String senderEmail) {
+        String receiverEmail = securityUtils.getCurrentUserEmail();
+        List<Message> unread = messageRepository.findByReceiverEmailAndSenderEmailAndIsReadFalse(receiverEmail, senderEmail);
+        unread.forEach(m -> {
+            m.setRead(true);
+            messageRepository.save(m);
+        });
+    }
 }

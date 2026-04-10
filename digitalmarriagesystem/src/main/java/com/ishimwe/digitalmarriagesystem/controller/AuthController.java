@@ -48,7 +48,7 @@ public class AuthController {
             
             User user = userRepository.findByEmail(loginRequest.getEmail()).get();
 
-            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole(), user.getUserId()));
         } catch (org.springframework.security.authentication.DisabledException e) {
             return ResponseEntity.status(403).body("Account not verified. Please check your email.");
         } catch (Exception e) {
@@ -63,14 +63,17 @@ public class AuthController {
         }
         
         if (user.getRole() == null || user.getRole().isBlank()) {
-            user.setRole("CITIZEN");
-        } else {
-            user.setRole(user.getRole().toUpperCase());
+            user.setRole("Citizen");
         }
+        // Ensure role matches one of the expected document roles
+        String currentRole = user.getRole();
+        if (currentRole.equalsIgnoreCase("Admin")) user.setRole("Admin");
+        else if (currentRole.equalsIgnoreCase("Citizen")) user.setRole("Citizen");
+        else if (currentRole.equalsIgnoreCase("Marriage Officer") || currentRole.equalsIgnoreCase("Officer")) user.setRole("Marriage Officer");
         
         String token = java.util.UUID.randomUUID().toString();
         user.setVerificationToken(token);
-        user.setVerified(false);
+        user.setVerified(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         
         User savedUser = userRepository.save(user);
@@ -86,7 +89,7 @@ public class AuthController {
             // In production, you might want to handle this differently
         }
 
-        return ResponseEntity.status(201).body("Registration successful. Please check your email to verify your account.");
+        return ResponseEntity.status(201).body("Registration successful. You can now login with your credentials.");
     }
 
     @org.springframework.web.bind.annotation.GetMapping("/verify")

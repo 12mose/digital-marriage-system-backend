@@ -145,37 +145,44 @@
 </head>
 <body>
     <div id="loginOverlay">
+        <div style="position: fixed; top: 24px; right: 24px; z-index: 3000;">
+            <select id="loginLangSelect" onchange="changeLang(this.value)" style="width: auto; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                <option value="en">🇬🇧 English</option>
+                <option value="rw">🇷🇼 Kinyarwanda</option>
+                <option value="fr">🇫🇷 Français</option>
+            </select>
+        </div>
         <div class="login-card" id="loginFormCard">
-            <h2 style="margin-bottom: 24px; text-align: center;">Welcome Back</h2>
+            <h2 style="margin-bottom: 24px; text-align: center;" data-t="welcomeBack">Welcome Back</h2>
             <form id="loginForm">
-                <label>Email</label>
+                <label data-t="email">Email</label>
                 <input type="email" id="loginEmail" value="admin@dms.com" required>
-                <label>Password</label>
+                <label data-t="password">Password</label>
                 <input type="password" id="loginPass" value="admin123" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">Sign In</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;" data-t="signIn">Sign In</button>
             </form>
             <p style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 0.875rem;">
-                Don't have an account? <a href="#" onclick="toggleAuth('register')">Register Now</a>
+                <span data-t="noAccount">Don't have an account?</span> <a href="#" onclick="toggleAuth('register')" data-t="registerNow">Register Now</a>
             </p>
         </div>
 
         <div class="login-card hidden" id="registerFormCard">
-            <h2 style="margin-bottom: 24px; text-align: center;">Join Us</h2>
+            <h2 style="margin-bottom: 24px; text-align: center;" data-t="joinUs">Join Us</h2>
             <form id="registerForm">
-                <label>First Name</label>
+                <label data-t="firstName">First Name</label>
                 <input type="text" id="regFirst" required>
-                <label>Last Name</label>
+                <label data-t="lastName">Last Name</label>
                 <input type="text" id="regLast" required>
-                <label>Email</label>
+                <label data-t="email">Email</label>
                 <input type="email" id="regEmail" required>
-                <label>National ID</label>
+                <label data-t="nationalId">National ID</label>
                 <input type="text" id="regNationalId" required>
-                <label>Password</label>
-                <input type="password" id="regPass" placeholder="Password" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                <label data-t="password">Password</label>
+                <input type="password" id="regPass" data-t="password" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" data-t="createAccount">Create Account</button>
             </form>
             <p style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 0.875rem;">
-                Already have an account? <a href="#" onclick="toggleAuth('login')">Sign In</a>
+                <span data-t="alreadyAccount">Already have an account?</span> <a href="#" onclick="toggleAuth('login')" data-t="signIn">Sign In</a>
             </p>
         </div>
     </div>
@@ -183,29 +190,35 @@
     <div class="container hidden" id="dashboard">
         <header class="header">
             <div class="header-info">
-                <h1>💍 Digital Marriage System</h1>
-                <p style="color: var(--text-muted)">Welcome, <span id="userDisplay">...</span> (<span id="roleDisplay">...</span>)</p>
+                <h1>💍 <span data-t="systemTitle">Digital Marriage System</span></h1>
+                <p style="color: var(--text-muted)"><span data-t="welcomeUser">Welcome,</span> <span id="userDisplay">...</span> (<span id="roleDisplay">...</span>)</p>
             </div>
-            <div class="header-actions">
-                <button class="btn" onclick="logout()" style="background: #f1f5f9;">Sign Out</button>
+            <div class="header-actions" style="display:flex; gap:12px; align-items:center;">
+                <select id="langSelect" onchange="changeLang(this.value)" style="width: auto; margin-bottom: 0; padding: 8px; border-radius: 8px;">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="rw">🇷🇼 Kinyarwanda</option>
+                    <option value="fr">🇫🇷 Français</option>
+                </select>
+                <a href="/verify.html" target="_blank" class="btn" style="background: #eef2ff; color: var(--primary); text-decoration: none; display: inline-block;"><span data-t="verifyBtn">🔍 Verify Certificate</span></a>
+                <button class="btn" onclick="logout()" style="background: #f1f5f9;"><span data-t="signOut">Sign Out</span></button>
             </div>
         </header>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <p style="color: var(--text-muted); font-size: 0.875rem;">Users</p>
+                <p style="color: var(--text-muted); font-size: 0.875rem;" data-t="users">Users</p>
                 <div class="stat-value" id="statUsers">0</div>
             </div>
             <div class="stat-card">
-                <p style="color: var(--text-muted); font-size: 0.875rem;">Pending Apps</p>
+                <p style="color: var(--text-muted); font-size: 0.875rem;" data-t="pendingApps">Pending Apps</p>
                 <div class="stat-value" id="statPending">0</div>
             </div>
             <div class="stat-card">
-                <p style="color: var(--text-muted); font-size: 0.875rem;">Marriages</p>
+                <p style="color: var(--text-muted); font-size: 0.875rem;" data-t="marriages">Marriages</p>
                 <div class="stat-value" id="statMarriages">0</div>
             </div>
             <div class="stat-card">
-                <p style="color: var(--text-muted); font-size: 0.875rem;">Certificates</p>
+                <p style="color: var(--text-muted); font-size: 0.875rem;" data-t="certs">Certificates</p>
                 <div class="stat-value" id="statCertificates">0</div>
             </div>
         </div>
@@ -213,26 +226,30 @@
         <div class="grid-layout">
             <aside class="sidebar">
                 <div class="nav-card">
-                    <button id="navApps" class="nav-btn active" onclick="setView('applications')">📋 Applications</button>
-                    <button id="navMarriages" class="nav-btn" onclick="setView('marriages')">💍 Marriages</button>
-                    <button id="navCerts" class="nav-btn" onclick="setView('certificates')">📜 Certificates</button>
-                    <button id="navUsers" class="nav-btn" onclick="setView('users')">👥 User Directory</button>
-                    <button id="navChat" class="nav-btn" onclick="setView('chat')">💬 Messages</button>
-                    <button id="navLogs" class="nav-btn" onclick="setView('auditlogs')">🛡️ Audit Logs</button>
+                    <button id="navApps" class="nav-btn active" onclick="setView('applications')" data-t="navApps">📋 Applications</button>
+                    <button id="navMarriages" class="nav-btn" onclick="setView('marriages')" data-t="navMarriages">💍 Marriages</button>
+                    <button id="navCerts" class="nav-btn" onclick="setView('certificates')" data-t="navCerts">📜 Certificates</button>
+                    <button id="navAppointments" class="nav-btn" onclick="setView('appointments')" data-t="navAppts">📅 Appointments</button>
+                    <button id="navUsers" class="nav-btn" onclick="setView('users')" data-t="navUsers">👥 User Directory</button>
+                    <button id="navChat" class="nav-btn" onclick="setView('chat')" style="position: relative;">
+                        <span data-t="navChat">💬 Messages</span>
+                        <span id="msgBadge" style="display:none; position: absolute; top: 0; right: 8px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; align-items: center; justify-content: center;">0</span>
+                    </button>
+                    <button id="navLogs" class="nav-btn" onclick="setView('auditlogs')" data-t="navLogs">🛡️ Audit Logs</button>
                 </div>
             </aside>
 
             <main class="main-content">
                 <div id="viewHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <h2 id="viewTitle">Marriage Applications</h2>
+                    <h2 id="viewTitle" data-t="viewTitleApps">Marriage Applications</h2>
                     <div id="viewActions">
                         <select id="statusFilter" style="width: auto; margin-bottom: 0;" onchange="refreshView()">
-                            <option value="">All Statuses</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="APPROVED">Approved</option>
-                            <option value="REJECTED">Rejected</option>
+                            <option value="" data-t="allStatuses">All Statuses</option>
+                            <option value="Pending" data-t="pending">Pending</option>
+                            <option value="Approved" data-t="approved">Approved</option>
+                            <option value="Rejected" data-t="rejected">Rejected</option>
                         </select>
-                        <button class="btn btn-primary" onclick="showCreateModal()">New Record</button>
+                        <button class="btn btn-primary" id="btnNewApplication" onclick="showNewAppModal()" data-t="newRecord">New Record</button>
                     </div>
                 </div>
 
@@ -243,16 +260,97 @@
                     </table>
                 </div>
 
-                <!-- Chat View -->
                 <div id="chatView" class="hidden">
-                    <div class="chat-container">
-                        <div id="chatRecipientInfo" style="margin-bottom: 16px; font-weight: 600; color: var(--primary);">
-                            Chatting with: <span id="recipientEmailDisplay">Select a user</span>
+                    <div style="display: flex; gap: 20px; height: 600px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                        <!-- Sidebar for Recent Conversations -->
+                        <div id="chatSidebar" style="width: 280px; border-right: 1px solid #f1f5f9; padding-right: 20px; overflow-y: auto;">
+                            <h4 style="margin-bottom: 20px; color: var(--primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.4rem;">💬</span> <span data-t="activeChats">Active Chats</span>
+                            </h4>
+                            <div id="recentContactsList" style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Contact list populated here -->
+                            </div>
                         </div>
-                        <div id="chatMessages" class="chat-messages" style="display: flex; flex-direction: column;"></div>
-                        <div class="chat-input-area">
-                            <textarea id="chatInput" placeholder="Type your message..."></textarea>
-                            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+
+                        <!-- Main Chat Area -->
+                        <div class="chat-container" style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+                            <div id="chatRecipientInfo" style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px;">
+                                <span style="font-weight: 600; color: #475569;" data-t="chattingWith">Chatting with:</span>
+                                <select id="chatRecipientSelect" style="width: auto; margin-bottom: 0; padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px;" onchange="selectUser(this.value)">
+                                    <option value="officer@dms.com">Marriage Officer (Default)</option>
+                                </select>
+                            </div>
+                            <div id="chatMessages" class="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; background: #fff; border: 1px solid #f1f5f9; border-radius: 8px; margin-bottom: 16px;"></div>
+                            <div class="chat-input-area" style="display: flex; gap: 12px;">
+                                <textarea id="chatInput" data-t="typeMessage" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: none; height: 45px;"></textarea>
+                                <button class="btn btn-primary" onclick="sendMessage()" style="padding: 0 24px; height: 45px; border-radius: 8px; font-weight: 500;" data-t="send">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Application Modal -->
+                <div id="newAppModal" class="modal-overlay hidden">
+                    <div class="modal-content" style="max-width: 500px; padding: 30px;">
+                        <h3 style="margin-bottom: 20px; color: var(--primary);" data-t="applyMarriage">Apply for Marriage</h3>
+                        <p style="color: #64748b; margin-bottom: 20px;" data-t="partnerEmailHint">Enter the email address of the person you intend to marry.</p>
+                        
+                        <div class="form-group">
+                            <label data-t="partnerEmailLabel">Partner's Email Address</label>
+                            <input type="email" id="partnerEmail" placeholder="partner@gmail.com" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label>Witness 1 Name</label>
+                                <input type="text" id="witness1Name" placeholder="Full Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Witness 1 ID</label>
+                                <input type="text" id="witness1Id" placeholder="National ID">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label>Witness 2 Name</label>
+                                <input type="text" id="witness2Name" placeholder="Full Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Witness 2 ID</label>
+                                <input type="text" id="witness2Id" placeholder="National ID">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Supporting Document (National ID / Birth Cert)</label>
+                            <input type="file" id="appDocFile" style="padding: 8px; border: 1px dashed var(--primary); background: #fefeff;">
+                        </div>
+
+                        <div id="appError" style="color: #ef4444; font-size: 0.9rem; margin-bottom: 16px; display: none;"></div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="submitNewApplication()" style="flex: 2;" data-t="submitApp">Submit Application</button>
+                            <button class="btn btn-secondary" onclick="closeNewAppModal()" style="flex: 1;" data-t="cancel">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- New Appointment Modal -->
+                <div id="newAppointmentModal" class="modal-overlay hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; display:flex; align-items:center; justify-content:center;">
+                    <div class="modal-content" style="background:white; padding:30px; border-radius:24px; max-width:400px; width:100%;">
+                        <h3 style="margin-bottom:20px; color:var(--primary);" data-t="scheduleCeremony">Schedule Ceremony</h3>
+                        <input type="hidden" id="apptAppId">
+                        <div class="form-group">
+                            <label data-t="ceremonyDateTime">Ceremony Date & Time</label>
+                            <input type="datetime-local" id="apptDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label data-t="ceremonyLocation">Location (Sector/Sector Hall)</label>
+                            <input type="text" id="apptLoc" placeholder="e.g. Nyarugenge District Office" required>
+                        </div>
+                        <div style="display:flex; gap:12px; margin-top:20px;">
+                            <button class="btn btn-primary" onclick="submitAppointment()" style="flex:2;" data-t="confirmBooking">Confirm Booking</button>
+                            <button class="btn btn-secondary" onclick="closeApptModal()" style="flex:1;" data-t="cancel">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -261,6 +359,220 @@
     </div>
 
     <script>
+        const translations = {
+            en: {
+                welcomeBack: "Welcome Back",
+                email: "Email",
+                password: "Password",
+                signIn: "Sign In",
+                noAccount: "Don't have an account?",
+                registerNow: "Register Now",
+                joinUs: "Join Us",
+                firstName: "First Name",
+                lastName: "Last Name",
+                nationalId: "National ID",
+                createAccount: "Create Account",
+                alreadyAccount: "Already have an account?",
+                signOut: "Sign Out",
+                verifyBtn: "🔍 Verify Certificate",
+                users: "Users",
+                pendingApps: "Pending Apps",
+                marriages: "Marriages",
+                certs: "Certificates",
+                navApps: "📋 Applications",
+                navMarriages: "💍 Marriages",
+                navCerts: "📜 Certificates",
+                navAppts: "📅 Appointments",
+                navUsers: "👥 User Directory",
+                navChat: "💬 Messages",
+                navLogs: "🛡️ Audit Logs",
+                viewTitleApps: "Marriage Applications",
+                viewTitleMarriages: "Marriages",
+                viewTitleCerts: "Certificates",
+                viewTitleUsers: "Users",
+                viewTitleLogs: "Audit Logs",
+                viewTitleChat: "Chat Messenger",
+                allStatuses: "All Statuses",
+                pending: "Pending",
+                approved: "Approved",
+                rejected: "Rejected",
+                newRecord: "New Record",
+                activeChats: "Active Chats",
+                chattingWith: "Chatting with:",
+                typeMessage: "Type your message...",
+                send: "Send",
+                applyMarriage: "Apply for Marriage",
+                partnerEmailHint: "Enter the email address of the person you intend to marry.",
+                partnerEmailLabel: "Partner's Email Address",
+                submitApp: "Submit Application",
+                cancel: "Cancel",
+                scheduleCeremony: "Schedule Ceremony",
+                ceremonyDateTime: "Ceremony Date & Time",
+                ceremonyLocation: "Location (Sector/Sector Hall)",
+                confirmBooking: "Confirm Booking",
+                promoteOfficer: "Promote to Officer",
+                promoteAdmin: "Promote to Admin",
+                chatBtn: "Chat",
+                approveBtn: "Approve",
+                rejectBtn: "Reject",
+                bookCeremony: "📅 Book Ceremony",
+                systemTitle: "Digital Marriage System",
+                welcomeUser: "Welcome,"
+            },
+            rw: {
+                welcomeBack: "Murakaza neza",
+                email: "Imeyili",
+                password: "Ijambo ry'ibanga",
+                signIn: "Injira",
+                noAccount: "Nta konti ufite?",
+                registerNow: "Iyandikishe nonaha",
+                joinUs: "Twiyungeho",
+                firstName: "Izina rya mbere",
+                lastName: "Izina rya nyuma",
+                nationalId: "Indangamuntu",
+                createAccount: "Fungura konti",
+                alreadyAccount: "Ufite konti?",
+                signOut: "Sohoka",
+                verifyBtn: "🔍 Genura Icyangombwa",
+                users: "Abakoresha",
+                pendingApps: "Inyandiko zitegerejwe",
+                marriages: "Gushyingirwa",
+                certs: "Impamyabumenyi",
+                navApps: "📋 Imenyekanisha",
+                navMarriages: "💍 Gushyingirwa",
+                navCerts: "📜 Impamyabumenyi",
+                navAppts: "📅 Gahunda",
+                navUsers: "👥 Abakoresha",
+                navChat: "💬 Ubutumwa",
+                navLogs: "🛡️ Imyitwarire",
+                viewTitleApps: "Inyandiko zo Gushyingirwa",
+                viewTitleMarriages: "Abashyingiranywe",
+                viewTitleCerts: "Impamyabumenyi",
+                viewTitleUsers: "Urutonde rw'Abakoresha",
+                viewTitleLogs: "Amakuru y'imikorere",
+                viewTitleChat: "Ubutumwa",
+                allStatuses: "Imimerere yose",
+                pending: "Zitegerejwe",
+                approved: "Zemejwe",
+                rejected: "Zanzwe",
+                newRecord: "Andika bundi bushya",
+                activeChats: "Ibiganiro bikora",
+                chattingWith: "Uvugana na:",
+                typeMessage: "Andika ubutumwa...",
+                send: "Ohereza",
+                applyMarriage: "Gusaba gushyingirwa",
+                partnerEmailHint: "Andika imeyili y'uwo muzafatanya gushyingirwa.",
+                partnerEmailLabel: "Imeyili y'umufatanyabikorwa",
+                submitApp: "Ohereza ubusabe",
+                cancel: "Hagarika",
+                scheduleCeremony: "Guhanga gahunda",
+                ceremonyDateTime: "Itariki n'isaha",
+                ceremonyLocation: "Ahantu (Umurenge/Ibiro)",
+                confirmBooking: "Emeza gahunda",
+                promoteOfficer: "Muhe inshingano z'umukozi",
+                promoteAdmin: "Muhe inshingano z'ubuyobozi",
+                chatBtn: "Ganira",
+                approveBtn: "Emeza",
+                rejectBtn: "Anzika",
+                bookCeremony: "📅 Fata gahunda",
+                systemTitle: "Sisitemu yo Gushyingirwa",
+                welcomeUser: "Murakaza neza,"
+            },
+            fr: {
+                welcomeBack: "Bon retour",
+                email: "Email",
+                password: "Mot de passe",
+                signIn: "Se connecter",
+                noAccount: "Vous n'avez pas de compte ?",
+                registerNow: "Inscrivez-vous maintenant",
+                joinUs: "Rejoignez-nous",
+                firstName: "Prénom",
+                lastName: "Nom",
+                nationalId: "ID nationale",
+                createAccount: "Créer un compte",
+                alreadyAccount: "Avez-vous déjà un compte ?",
+                signOut: "Déconnexion",
+                verifyBtn: "🔍 Vérifier le Certificat",
+                users: "Utilisateurs",
+                pendingApps: "Demandes en attente",
+                marriages: "Mariages",
+                certs: "Certificats",
+                navApps: "📋 Demandes",
+                navMarriages: "💍 Mariages",
+                navCerts: "📜 Certificats",
+                navAppts: "📅 Rendez-vous",
+                navUsers: "👥 Utilisateurs",
+                navChat: "💬 Messages",
+                navLogs: "🛡️ Journaux d'audit",
+                viewTitleApps: "Demandes de Mariage",
+                viewTitleMarriages: "Mariages",
+                viewTitleCerts: "Certificats",
+                viewTitleUsers: "Utilisateurs",
+                viewTitleLogs: "Journaux d'audit",
+                viewTitleChat: "Messagerie",
+                allStatuses: "Tous les statuts",
+                pending: "En attente",
+                approved: "Approuvées",
+                rejected: "Rejetées",
+                newRecord: "Nouveau record",
+                activeChats: "Chats actifs",
+                chattingWith: "Discuter avec :",
+                typeMessage: "Tapez votre message...",
+                send: "Envoyer",
+                applyMarriage: "Demander un mariage",
+                partnerEmailHint: "Entrez l'adresse e-mail de la personne que vous souhaitez épouser.",
+                partnerEmailLabel: "Adresse e-mail du partenaire",
+                submitApp: "Soumettre la demande",
+                cancel: "Annuler",
+                scheduleCeremony: "Planifier la cérémonie",
+                ceremonyDateTime: "Date et heure de la cérémonie",
+                ceremonyLocation: "Lieu (Secteur/Salle du Secteur)",
+                confirmBooking: "Confirmer la réservation",
+                promoteOfficer: "Promouvoir au rang d'officier",
+                promoteAdmin: "Promouvoir au rang d'administrateur",
+                chatBtn: "Discuter",
+                approveBtn: "Approuver",
+                rejectBtn: "Rejeter",
+                bookCeremony: "📅 Réserver la cérémonie",
+                systemTitle: "Système de Mariage Numérique",
+                welcomeUser: "Bienvenue,"
+            }
+        };
+
+        function changeLang(lang) {
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                if (translations[lang] && translations[lang][key]) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.innerText = translations[lang][key];
+                    }
+                }
+            });
+            localStorage.setItem('lang', lang);
+            
+            // Sync both select elements if they exist
+            const lSelect = document.getElementById('langSelect');
+            const logSelect = document.getElementById('loginLangSelect');
+            if (lSelect) lSelect.value = lang;
+            if (logSelect) logSelect.value = lang;
+
+            // Update dynamic titles if visible
+            const titleMap = {
+                applications: 'viewTitleApps',
+                marriages: 'viewTitleMarriages',
+                certificates: 'viewTitleCerts',
+                users: 'viewTitleUsers',
+                auditlogs: 'viewTitleLogs',
+                chat: 'viewTitleChat'
+            };
+            if (titleMap[currentView]) {
+                const titleEl = document.getElementById('viewTitle');
+                if (titleEl) titleEl.innerText = translations[lang][titleMap[currentView]];
+            }
+        }
+
         const API_BASE = 'http://localhost:8081/api';
         let currentUser = null;
         let currentView = 'applications';
@@ -269,6 +581,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const storedUser = localStorage.getItem('user');
+            const savedLang = localStorage.getItem('lang') || 'en';
+            changeLang(savedLang);
+
             if (token && storedUser) {
                 currentUser = JSON.parse(storedUser);
                 showDashboard();
@@ -322,24 +637,40 @@
             } catch (err) { alert('Connection error'); }
         });
 
-        function showDashboard() {
+        async function showDashboard() {
             document.getElementById('loginOverlay').classList.add('hidden');
+            const loginLang = document.getElementById('loginLangSelect');
+            if (loginLang) loginLang.parentElement.classList.add('hidden');
+            
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('userDisplay').innerText = currentUser.email;
             document.getElementById('roleDisplay').innerText = currentUser.role;
 
+            // Fix for missing userId in old sessions
+            if (!currentUser.userId) {
+                const fullUser = await fetchAPI(`/users/search?email=${encodeURIComponent(currentUser.email)}`);
+                if (fullUser) {
+                    currentUser.userId = fullUser.userId;
+                    localStorage.setItem('user', JSON.stringify(currentUser));
+                }
+            }
+
             const role = currentUser.role.toUpperCase();
-            document.getElementById('navUsers').classList.toggle('hidden', role !== 'ADMIN');
+            document.getElementById('navUsers').classList.toggle('hidden', role === 'CITIZEN');
             document.getElementById('navLogs').classList.toggle('hidden', role !== 'ADMIN');
             document.getElementById('navMarriages').classList.toggle('hidden', role === 'CITIZEN');
             
-            if (role === 'CITIZEN') selectedRecipient = 'officer@dms.com';
+            if (role === 'CITIZEN' || role === 'Citizen') selectedRecipient = 'officer@dms.com';
             
             refreshAllData();
             refreshView();
         }
 
-        function logout() { localStorage.clear(); location.reload(); }
+        function logout() { 
+            localStorage.removeItem('jwt');
+            localStorage.removeItem('user');
+            location.reload(); 
+        }
 
         async function fetchAPI(endpoint, options = {}) {
             const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -347,46 +678,71 @@
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
             });
             if (res.status === 403) logout();
-            return res.ok ? await res.json() : null;
+            if (!res.ok) return null;
+            
+            const text = await res.text();
+            return text ? JSON.parse(text) : {};
         }
 
         async function refreshAllData() {
             const role = (currentUser && currentUser.role) ? currentUser.role.toUpperCase() : '';
             
-            // Citizens cannot fetch all users or certificates
-            const calls = [fetchAPI('/applications')];
-            if (role !== 'CITIZEN') {
-                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'));
+            // Citizens cannot fetch all users, marriages, or certificates
+            const calls = [fetchAPI('/applications'), fetchAPI('/appointments')];
+            if (role === 'ADMIN') {
+                // Admins see everything
+                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'), fetchAPI('/auditlogs'));
+            } else if (role === 'OFFICER' || role === 'MARRIAGE OFFICER') {
+                // Officers see users, marriages, certificates
+                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'), Promise.resolve([]));
             } else {
-                calls.push(Promise.resolve([]), fetchAPI('/marriages'), Promise.resolve([]));
+                // Citizens can only see their related data (filtered by backend usually, but UI handles visibility)
+                calls.push(Promise.resolve([]), Promise.resolve([]), Promise.resolve([]), Promise.resolve([]));
             }
 
-            const [apps, users, marriages, certs] = await Promise.all(calls);
+            const [apps, appts, users, marriages, certs] = await Promise.all(calls);
             
             document.getElementById('statUsers').innerText = users?.length || 0;
-            document.getElementById('statPending').innerText = apps?.filter(a => a.applicationStatus === 'PENDING').length || 0;
-            document.getElementById('statMarriages').innerText = marriages?.filter(m => m.marriageStatus === 'ACTIVE').length || 0;
+            document.getElementById('statPending').innerText = apps?.filter(a => a.applicationStatus === 'Pending' || a.applicationStatus === 'PENDING').length || 0;
+            document.getElementById('statMarriages').innerText = marriages?.filter(m => m.status === 'Active' || m.status === 'ACTIVE').length || 0;
             document.getElementById('statCertificates').innerText = certs?.length || 0;
         }
 
         function setView(view) {
             currentView = view;
+            const lang = localStorage.getItem('lang') || 'en';
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`nav${view.charAt(0).toUpperCase() + view.slice(1,4)}`).classList.add('active');
+            const navId = `nav${view.charAt(0).toUpperCase() + view.slice(1,4)}`;
+            const navEl = document.getElementById(navId);
+            if (navEl) navEl.classList.add('active');
             
             document.getElementById('tableContainer').classList.toggle('hidden', view === 'chat');
             document.getElementById('chatView').classList.toggle('hidden', view !== 'chat');
             document.getElementById('viewActions').classList.toggle('hidden', view === 'chat');
 
-            const titles = { applications: 'Applications', marriages: 'Marriages', certificates: 'Certificates', users: 'Users', auditlogs: 'Audit Logs', chat: 'Chat Messenger' };
-            document.getElementById('viewTitle').innerText = titles[view];
+            const titleMap = {
+                applications: 'viewTitleApps',
+                marriages: 'viewTitleMarriages',
+                certificates: 'viewTitleCerts',
+                users: 'viewTitleUsers',
+                auditlogs: 'viewTitleLogs',
+                chat: 'viewTitleChat'
+            };
+            if (titleMap[view]) {
+                document.getElementById('viewTitle').innerText = translations[lang][titleMap[view]];
+            }
             
             if (view === 'chat') {
-                document.getElementById('recipientEmailDisplay').innerText = selectedRecipient;
+                populateChatRecipients();
                 loadMessages();
+                markRead();
             } else {
                 refreshView();
             }
+
+            const isCitizen = currentUser && currentUser.role === 'CITIZEN';
+            const btnNew = document.getElementById('btnNewApplication');
+            if (btnNew) btnNew.style.display = (view === 'applications' && isCitizen) ? 'block' : 'none';
         }
 
         async function refreshView() {
@@ -397,47 +753,174 @@
         }
 
         function renderTable(data) {
+            const lang = localStorage.getItem('lang') || 'en';
             const head = document.getElementById('tableHead');
             const body = document.getElementById('tableBody');
             head.innerHTML = ''; body.innerHTML = '';
+            
             if (!data || data.length === 0) {
-                body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">No records</td></tr>';
+                body.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:40px;">No records</td></tr>`;
                 return;
             }
-            const cols = Object.keys(data[0]);
-            cols.forEach(c => { const th = document.createElement('th'); th.innerText = c; head.appendChild(th); });
             
             const role = currentUser.role.toUpperCase();
+            const cols = Object.keys(data[0]);
+            
+            cols.forEach(c => { 
+                const th = document.createElement('th'); 
+                th.innerText = c.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); 
+                head.appendChild(th); 
+            });
+            
+            if (role !== 'CITIZEN' && (currentView === 'users' || currentView === 'applications')) {
+                const th = document.createElement('th'); 
+                th.innerText = lang === 'rw' ? 'Ibikorwa' : (lang === 'fr' ? 'Actions' : 'Actions');
+                head.appendChild(th);
+            }
+            
             data.forEach(row => {
                 const tr = document.createElement('tr');
+                
+                let statusDot = '';
+                if (currentView === 'users') {
+                    const online = isOnline(row.lastActive);
+                    statusDot = `<span title="${online ? 'Online' : 'Offline'}" style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${online ? '#22c55e' : '#cbd5e1'}; margin-right:8px;"></span>`;
+                }
+
                 cols.forEach(c => {
                     const td = document.createElement('td');
-                    if (c.toLowerCase().includes('status')) td.innerHTML = `<span class="badge badge-${row[c].toLowerCase()}">${row[c]}</span>`;
-                    else td.innerText = row[c];
+                    let val = row[c] || '-';
+                    if (c === 'verified') val = val === true ? '✅ Yes' : '❌ No';
+                    
+                    if ((c === 'firstName' || c === 'fullName' || c === 'email') && currentView === 'users' && !tr.querySelector('.status-dot-set')) {
+                        td.innerHTML = statusDot + val;
+                        td.classList.add('status-dot-set');
+                    } else if (c.toLowerCase().includes('status')) {
+                        let statusText = val;
+                        if (val.toString().toLowerCase() === 'pending') {
+                            statusText = translations[lang].pending;
+                            if (row.partner2Approved === false) {
+                                statusText += " (Awaiting Partner)";
+                            } else {
+                                statusText += " (Awaiting Officer)";
+                            }
+                        }
+                        if (val.toString().toLowerCase() === 'approved') statusText = translations[lang].approved;
+                        if (val.toString().toLowerCase() === 'rejected') statusText = translations[lang].rejected;
+                        td.innerHTML = `<span class="badge badge-${val.toString().toLowerCase()}">${statusText}</span>`;
+                    } else {
+                        td.innerText = val;
+                    }
                     tr.appendChild(td);
                 });
                 
-                // Admin Actions in User list
-                if (currentView === 'users' && row.email !== currentUser.email && role === 'ADMIN') {
+                if (currentView === 'users' && row.email !== currentUser.email && (role === 'ADMIN' || role === 'OFFICER')) {
                     const td = document.createElement('td');
                     td.style.display = 'flex'; td.style.gap = '8px';
                     
-                    if (row.role === 'CITIZEN') {
-                        td.innerHTML += `<button class="btn btn-sm btn-success" onclick="promoteUser(${row.userId}, 'OFFICER')">Promote to Officer</button>`;
-                    } else if (row.role === 'OFFICER') {
-                        td.innerHTML += `<button class="btn btn-sm btn-primary" style="background:#581c87" onclick="promoteUser(${row.userId}, 'ADMIN')">Promote to Admin</button>`;
+                    if (role === 'ADMIN') {
+                        if (row.role === 'CITIZEN') {
+                            td.innerHTML += `<button class="btn btn-sm btn-success" onclick="promoteUser(${row.userId}, 'OFFICER')">${translations[lang].promoteOfficer}</button>`;
+                        } else if (row.role === 'OFFICER') {
+                            td.innerHTML += `<button class="btn btn-sm btn-primary" style="background:#581c87" onclick="promoteUser(${row.userId}, 'ADMIN')">${translations[lang].promoteAdmin}</button>`;
+                        }
                     }
                     
-                    td.innerHTML += `<button class="btn btn-sm btn-primary" onclick="startChat('${row.email}')">Chat</button>`;
+                    td.innerHTML += `<button class="btn btn-sm btn-primary" onclick="startChat('${row.email}')">${translations[lang].chatBtn}</button>`;
                     tr.appendChild(td);
                 }
 
-                if (currentView === 'applications' && row.applicationStatus === 'PENDING' && role !== 'CITIZEN') {
+                if (currentView === 'applications' && (row.applicationStatus === 'Pending' || row.applicationStatus === 'PENDING') && role !== 'CITIZEN') {
                     const td = document.createElement('td');
-                    td.innerHTML = `<button class="btn btn-success btn-sm" onclick="approveApplication(${row.applicationId})">Approve</button>`;
+                    td.innerHTML = `
+                        <button class="btn btn-success btn-sm" onclick="updateApplicationStatus(${row.applicationId}, 'APPROVED')">${translations[lang].approveBtn}</button>
+                        <button class="btn btn-sm btn-danger" onclick="updateApplicationStatus(${row.applicationId}, 'REJECTED')">${translations[lang].rejectBtn}</button>
+                    `;
+                    tr.appendChild(td);
+                }
+
+                // Partner Consent Logic
+                if (currentView === 'applications' && role === 'CITIZEN' && row.applicant2Id === currentUser.userId && !row.partner2Approved) {
+                    const td = document.createElement('td');
+                    td.innerHTML = `<button class="btn btn-success btn-sm" onclick="acceptProposal(${row.applicationId})">💍 Accept Proposal</button>`;
+                    tr.appendChild(td);
+                }
+
+                if (currentView === 'applications' && (row.applicationStatus === 'Approved' || row.applicationStatus === 'APPROVED') && role === 'CITIZEN') {
+                    const td = document.createElement('td');
+                    td.innerHTML = `<button class="btn btn-success btn-sm" onclick="showApptModal(${row.applicationId})">${translations[lang].bookCeremony}</button>`;
                     tr.appendChild(td);
                 }
                 body.appendChild(tr);
+            });
+        }
+
+        function selectUser(email) {
+            selectedRecipient = email;
+            loadMessages();
+        }
+
+        async function populateChatRecipients() {
+            const select = document.getElementById('chatRecipientSelect');
+            
+            // citizens cannot fetch /users. Skip the call.
+            if (currentUser.role === 'CITIZEN') {
+                select.innerHTML = '';
+                const opt = document.createElement('option');
+                opt.value = 'officer@dms.com'; opt.innerText = 'System Officer (Default)';
+                select.appendChild(opt);
+                return;
+            }
+
+            const data = await fetchAPI('/users');
+            if (!data) return;
+            
+            select.innerHTML = '';
+            data.forEach(u => {
+                if (u.email !== currentUser.email) {
+                    const opt = document.createElement('option');
+                    opt.value = u.email;
+                    opt.innerText = `${u.firstName} ${u.lastName} (${u.role})`;
+                    if (u.email === selectedRecipient) opt.selected = true;
+                    select.appendChild(opt);
+                }
+            });
+        }
+
+        function isOnline(lastActiveStr) {
+            if (!lastActiveStr) return false;
+            const lastActive = new Date(lastActiveStr);
+            const now = new Date();
+            return (now - lastActive) < 300000; // 5 minutes in milliseconds
+        }
+
+        async function refreshRecentContacts() {
+            const contacts = await fetchAPI('/messages/recent-contacts');
+            const list = document.getElementById('recentContactsList');
+            if (!contacts || !list) return;
+
+            const allUsers = await fetchAPI('/users'); // Needed for online status
+
+            list.innerHTML = '';
+            contacts.forEach(email => {
+                const user = allUsers?.find(u => u.email === email);
+                const online = isOnline(user?.lastActive);
+
+                const div = document.createElement('div');
+                div.className = 'contact-item' + (email === selectedRecipient ? ' active' : '');
+                div.style.padding = '12px';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '10px';
+                div.style.background = email === selectedRecipient ? '#f1f5f9' : 'transparent';
+                div.style.borderRadius = '8px';
+                div.style.cursor = 'pointer';
+                div.style.fontSize = '0.9rem';
+                div.style.border = '1px solid ' + (email === selectedRecipient ? '#e2e8f0' : 'transparent');
+                
+                div.innerHTML = `<span style="width:10px; height:10px; border-radius:50%; background:${online ? '#22c55e' : '#cbd5e1'};"></span> <span>${email}</span>`;
+                div.onclick = () => selectUser(email);
+                list.appendChild(div);
             });
         }
 
@@ -446,9 +929,28 @@
             setView('chat');
         }
 
+        async function updateNotifications() {
+            const count = await fetchAPI('/messages/unread-count');
+            const badge = document.getElementById('msgBadge');
+            if (badge) {
+                badge.innerText = count || 0;
+                badge.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+
+        async function markRead() {
+            if (!selectedRecipient) return;
+            await fetchAPI(`/messages/mark-read/${selectedRecipient}`, { method: 'POST' });
+            updateNotifications();
+        }
+
         async function loadMessages() {
             const messages = await fetchAPI(`/messages/conversation/${selectedRecipient}`);
             const container = document.getElementById('chatMessages');
+            
+            // Mark conversation as read if we are looking at it
+            if (currentView === 'chat') markRead();
+            
             container.innerHTML = '';
             messages?.forEach(m => {
                 const div = document.createElement('div');
@@ -484,22 +986,127 @@
             }
         }
 
-        async function approveApplication(id) {
-            if (!confirm('Approve?')) return;
-            const res = await fetch(`${API_BASE}/applications/${id}/status`, {
-                method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: "APPROVED" })
+        async function updateApplicationStatus(id, status) {
+            if (!confirm(`Are you sure you want to change status to ${status}?`)) return;
+            const res = await fetchAPI(`/applications/${id}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status })
             });
-            if (res.ok) { refreshAllData(); refreshView(); }
+            if (res) {
+                refreshAllData();
+                refreshView();
+            }
         }
 
-        function showCreateModal() {
-            const a1 = prompt('Applicant 1 ID:'), a2 = prompt('Applicant 2 ID:');
-            if (a1 && a2) fetchAPI('/applications', { method: 'POST', body: JSON.stringify({ applicant1Id: a1, applicant2Id: a2 }) }).then(refreshAllData);
+        function showNewAppModal() {
+            document.getElementById('newAppModal').classList.remove('hidden');
+            document.getElementById('appError').style.display = 'none';
+        }
+
+        function closeNewAppModal() {
+            document.getElementById('newAppModal').classList.add('hidden');
+        }
+
+        async function submitNewApplication() {
+            const partnerEmail = document.getElementById('partnerEmail').value;
+            const errorDiv = document.getElementById('appError');
+            if (!partnerEmail) {
+                errorDiv.innerText = 'Please enter your partner\'s email.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 1. Find the partner's user ID first
+            const partner = await fetchAPI(`/users/search?email=${encodeURIComponent(partnerEmail)}`);
+            if (!partner || !partner.userId) {
+                errorDiv.innerText = 'Partner not found. They must register first.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 2. Submit the application
+            const res = await fetchAPI('/applications', {
+                method: 'POST',
+                body: JSON.stringify({
+                    applicant1Id: currentUser.userId,
+                    applicant2Id: partner.userId,
+                    witness1Name: document.getElementById('witness1Name').value,
+                    witness1NationalId: document.getElementById('witness1Id').value,
+                    witness2Name: document.getElementById('witness2Name').value,
+                    witness2NationalId: document.getElementById('witness2Id').value
+                })
+            });
+
+            if (res && res.applicationId) {
+                // 3. Handle Document Upload (Simulated)
+                const docFile = document.getElementById('appDocFile').files[0];
+                if (docFile) {
+                    await fetchAPI('/documents', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            applicationId: res.applicationId,
+                            documentType: 'ID_PROOF',
+                            filePath: `uploads/${res.applicationId}_${docFile.name}`
+                        })
+                    });
+                }
+
+                alert('Success! Your marriage application has been submitted and is awaiting partner approval.');
+                closeNewAppModal();
+                refreshAllData();
+                setView('applications');
+            } else {
+                errorDiv.innerText = 'Error submitting application. Check your connection or system rules (e.g. age/bigamy).';
+                errorDiv.style.display = 'block';
+            }
         }
         
+        // Global refreshers
+        setInterval(updateNotifications, 10000);
+        
         // Auto-refresh chat
-        setInterval(() => { if (currentView === 'chat') loadMessages(); }, 5000);
+        setInterval(() => { 
+            if (currentView === 'chat') {
+                loadMessages();
+                refreshRecentContacts();
+            }
+        }, 5000);
+        function showApptModal(appId) {
+            document.getElementById('apptAppId').value = appId;
+            document.getElementById('newAppointmentModal').classList.remove('hidden');
+        }
+
+        function closeApptModal() {
+            document.getElementById('newAppointmentModal').classList.add('hidden');
+        }
+
+        async function submitAppointment() {
+            const appId = document.getElementById('apptAppId').value;
+            const date = document.getElementById('apptDate').value;
+            const loc = document.getElementById('apptLoc').value;
+
+            if (!date || !loc) { alert('Please fill all fields'); return; }
+
+            const res = await fetchAPI('/appointments', {
+                method: 'POST',
+                body: JSON.stringify({ applicationId: appId, appointmentDate: date, location: loc })
+            });
+
+            if (res) {
+                alert('Ceremony scheduled successfully!');
+                closeApptModal();
+                setView('appointments');
+            }
+        }
+
+        async function acceptProposal(appId) {
+            if (!confirm("Do you accept this marriage proposal?")) return;
+            const res = await fetchAPI(`/applications/${appId}/partner-approve`, { method: 'PUT' });
+            if (res) {
+                alert("Proposal accepted! Awaiting officer review.");
+                refreshView();
+            }
+        }
     </script>
 </body>
 </html>

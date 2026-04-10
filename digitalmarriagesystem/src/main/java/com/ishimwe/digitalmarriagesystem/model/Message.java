@@ -19,7 +19,17 @@ public class Message {
     
     private LocalDateTime timestamp;
 
+    private boolean isRead = false;
+
     public Message() {}
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
 
     public Long getMessageId() {
         return messageId;

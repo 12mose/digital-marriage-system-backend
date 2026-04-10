@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CertificateRepository extends JpaRepository<Certificate, Long> {
+    java.util.Optional<Certificate> findByCertificateNumberAndVerificationCode(String certificateNumber, String verificationCode);
 }

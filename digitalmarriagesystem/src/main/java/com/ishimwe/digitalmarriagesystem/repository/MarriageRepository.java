@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface MarriageRepository extends JpaRepository<Marriage, Long> {
-    List<Marriage> findByMarriageStatus(String status);
+    List<Marriage> findByStatus(String status);
 
-    @Query("SELECT COUNT(m) > 0 FROM Marriage m WHERE (m.applicant1Id = :id OR m.applicant2Id = :id) AND m.marriageStatus = 'ACTIVE'")
+    @Query("SELECT COUNT(m) > 0 FROM Marriage m WHERE (m.applicant1Id = :id OR m.applicant2Id = :id) AND m.status = 'Active'")
     boolean isUserAlreadyMarried(@Param("id") Long id);
 }

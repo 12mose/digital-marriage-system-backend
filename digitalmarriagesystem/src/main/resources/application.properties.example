@@ -1,0 +1,5 @@
+# Copy this file to application-local.properties in the same directory.
+# This file is ignored by Git, so it's safe to keep your real credentials here.
+
+SMTP_USERNAME=mosesishimwe2002@gmail.com
+SMTP_PASSWORD=put-your-new-app-password-here

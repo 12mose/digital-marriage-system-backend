@@ -17,10 +17,28 @@ public class User {
     private String role;
     private String nationalId;
     private java.time.LocalDate birthDate;
+    private String status = "Active";
     private boolean verified = false;
     private String verificationToken;
+    private java.time.LocalDateTime lastActive;
  
     public User(){}
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public java.time.LocalDateTime getLastActive() {
+        return lastActive;
+    }
+
+    public void setLastActive(java.time.LocalDateTime lastActive) {
+        this.lastActive = lastActive;
+    }
  
     public boolean isVerified() {
         return verified;

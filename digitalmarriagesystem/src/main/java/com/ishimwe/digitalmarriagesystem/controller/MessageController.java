@@ -30,4 +30,19 @@ public class MessageController {
     public List<Message> getInbox() {
         return messageService.getInbox();
     }
+
+    @GetMapping("/recent-contacts")
+    public List<String> getRecentContacts() {
+        return messageService.getRecentContacts();
+    }
+
+    @GetMapping("/unread-count")
+    public long getUnreadCount() {
+        return messageService.getUnreadCount();
+    }
+
+    @PostMapping("/mark-read/{senderEmail}")
+    public void markRead(@PathVariable String senderEmail) {
+        messageService.markConversationRead(senderEmail);
+    }
 }

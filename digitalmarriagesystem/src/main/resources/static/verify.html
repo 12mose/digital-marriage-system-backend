@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Certificate - Digital Marriage System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .verify-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .icon-box {
+            width: 64px;
+            height: 64px;
+            background: #eef2ff;
+            color: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 24px;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+        p { color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem; }
+
+        .form-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .btn-verify:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        #result {
+            margin-top: 32px;
+            padding: 24px;
+            border-radius: 16px;
+            display: none;
+        }
+
+        .result-success { background: #ecfdf5; border: 1px solid #d1fae5; color: #065f46; }
+        .result-error { background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; }
+
+        .result-title { font-weight: 700; margin-bottom: 12px; font-size: 1.1rem; }
+        .result-detail { font-size: 0.875rem; line-height: 1.6; text-align: left; }
+        
+        .divider { height: 1px; background: #e2e8f0; margin: 12px 0; }
+    </style>
+</head>
+<body>
+    <div class="verify-card">
+        <div style="position: absolute; top: 20px; right: 20px;">
+            <select id="langSelect" onchange="changeLang(this.value)" style="width: auto; padding: 6px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.8rem;">
+                <option value="en">🇬🇧 English</option>
+                <option value="rw">🇷🇼 Kinyarwanda</option>
+                <option value="fr">🇫🇷 Français</option>
+            </select>
+        </div>
+        <div class="icon-box">📜</div>
+        <h1 data-t="verifyTitle">Certificate Verification</h1>
+        <p data-t="verifyDesc">Enter the details from the marriage certificate to verify its authenticity.</p>
+
+        <form id="verifyForm">
+            <div class="form-group">
+                <label data-t="certNumberLabel">Certificate Number</label>
+                <input type="text" id="certNumber" placeholder="CERT-123456789" required>
+            </div>
+            <div class="form-group">
+                <label data-t="verifyCodeLabel">Verification Code</label>
+                <input type="text" id="certCode" placeholder="ABC123XY" required>
+            </div>
+            <button type="submit" class="btn-verify" id="verifyBtn" data-t="verifyBtnNow">Verify Now</button>
+        </form>
+
+        <div id="result"></div>
+        
+        <div style="margin-top: 24px;">
+            <a href="/" style="color: var(--primary); text-decoration: none; font-size: 0.875rem; font-weight: 600;" data-t="backToPortal">← Back to Portal</a>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                verifyTitle: "Certificate Verification",
+                verifyDesc: "Enter the details from the marriage certificate to verify its authenticity.",
+                certNumberLabel: "Certificate Number",
+                verifyCodeLabel: "Verification Code",
+                verifyBtnNow: "Verify Now",
+                verifying: "Verifying...",
+                backToPortal: "← Back to Portal",
+                validCert: "✅ Valid Certificate",
+                certNum: "Certificate Number",
+                issueDate: "Issue Date",
+                digitallySigned: "🖋️ Digitally Signed",
+                signedOn: "Signed on",
+                officialRecord: "This certificate is an official digital record of the Digital Marriage Registration System.",
+                invalidDetails: "Invalid Details",
+                noMatch: "No matching certificate found. Please check the number and code.",
+                serverError: "Verification Failed",
+                serverMsg: "Unable to reach the verification server.",
+                unexpectedError: "Error",
+                unexpectedMsg: "An unexpected error occurred during verification."
+            },
+            rw: {
+                verifyTitle: "Genura Icyangombwa",
+                verifyDesc: "Andika amakuru ari ku cyangombwa cy'ushyingirwa kugira ngo ugenure ko ari cyo.",
+                certNumberLabel: "Nimero y'Icyangombwa",
+                verifyCodeLabel: "Kode yo Kugenura",
+                verifyBtnNow: "Genura Nonaha",
+                verifying: "Turagenura...",
+                backToPortal: "← Subira Inyuma",
+                validCert: "✅ Icyangombwa Ni Kizima",
+                certNum: "Nimero y'Icyangombwa",
+                issueDate: "Itariki Cyasohokeyeho",
+                digitallySigned: "🖋️ Cyasinywe mu buryo bwa mudasobwa",
+                signedOn: "Cyasinywe ku itariki",
+                officialRecord: "Iki cyangombwa ni inyandiko yemewe ya Sisitemu yo Gushyingirwa.",
+                invalidDetails: "Amakuru Atari Yo",
+                noMatch: "Nta cyangombwa gihuye n'amakuru watanze. Ongera ugenzure nimero na kode.",
+                serverError: "Genzura Byanze",
+                serverMsg: "Ntibishoboye kugera kuri seriveri igenura.",
+                unexpectedError: "Ikibazo",
+                unexpectedMsg: "Havutse ikibazo mu gihe cyo kugenura."
+            },
+            fr: {
+                verifyTitle: "Vérification du Certificat",
+                verifyDesc: "Entrez les détails du certificat de mariage pour vérifier son authenticité.",
+                certNumberLabel: "Numéro de certificat",
+                verifyCodeLabel: "Code de vérification",
+                verifyBtnNow: "Vérifier maintenant",
+                verifying: "Vérification...",
+                backToPortal: "← Retour au portail",
+                validCert: "✅ Certificat Valide",
+                certNum: "Numéro de certificat",
+                issueDate: "Date d'émission",
+                digitallySigned: "🖋️ Signé numériquement",
+                signedOn: "Signé le",
+                officialRecord: "Ce certificat est un document numérique officiel du Système de Mariage Numérique.",
+                invalidDetails: "Détails Invalides",
+                noMatch: "Aucun certificat correspondant n'a été trouvé. Veuillez vérifier le numéro et le code.",
+                serverError: "Échec de la vérification",
+                serverMsg: "Impossible de joindre le serveur de vérification.",
+                unexpectedError: "Erreur",
+                unexpectedMsg: "Une erreur inattendue s'est produite lors de la vérification."
+            }
+        };
+
+        function changeLang(lang) {
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+            localStorage.setItem('lang', lang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('lang') || 'en';
+            document.getElementById('langSelect').value = savedLang;
+            changeLang(savedLang);
+        });
+
+        document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const lang = localStorage.getItem('lang') || 'en';
+            const number = document.getElementById('certNumber').value;
+            const code = document.getElementById('certCode').value;
+            const btn = document.getElementById('verifyBtn');
+            const resultDiv = document.getElementById('result');
+
+            btn.disabled = true;
+            btn.innerText = translations[lang].verifying;
+            resultDiv.style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/public/verify-certificate?number=${number}&code=${code}`);
+                if (res.ok) {
+                    const cert = await res.json();
+                    if (cert && cert.certificateId) {
+                        resultDiv.className = 'result-success';
+                        resultDiv.innerHTML = `
+                            <div class="result-title">${translations[lang].validCert}</div>
+                            <div class="result-detail">
+                                <p><strong>${translations[lang].certNum}:</strong> ${cert.certificateNumber}</p>
+                                <p><strong>${translations[lang].issueDate}:</strong> ${cert.issueDate}</p>
+                                <div class="divider"></div>
+                                <p style="color: var(--success); font-weight: 600;">${translations[lang].digitallySigned}</p>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">${translations[lang].signedOn}: ${cert.signatureDate || 'N/A'}</p>
+                                <div class="divider"></div>
+                                <p style="font-size: 0.8rem; opacity: 0.8;">${translations[lang].officialRecord}</p>
+                            </div>
+                        `;
+                    } else {
+                        showError(translations[lang].invalidDetails, translations[lang].noMatch);
+                    }
+                } else {
+                    showError(translations[lang].serverError, translations[lang].serverMsg);
+                }
+            } catch (err) {
+                showError(translations[lang].unexpectedError, translations[lang].unexpectedMsg);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = translations[lang].verifyBtnNow;
+                resultDiv.style.display = 'block';
+            }
+        });
+
+        function showError(title, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result-error';
+            resultDiv.innerHTML = `
+                <div class="result-title">❌ ${title}</div>
+                <div class="result-detail">${message}</div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -16,4 +16,6 @@ public interface MarriageApplicationService {
     MarriageApplication updateApplicationStatus(Long id, String status);
 
     List<MarriageApplication> getApplicationsByStatus(String status);
+
+    MarriageApplication approveByPartner(Long id);
 }

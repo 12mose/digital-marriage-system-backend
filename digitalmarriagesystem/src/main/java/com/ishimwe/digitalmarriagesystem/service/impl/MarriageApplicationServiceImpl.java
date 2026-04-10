@@ -23,6 +23,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
     private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
     private final com.ishimwe.digitalmarriagesystem.repository.MarriageRepository marriageRepository;
+    private final EmailService emailService;
 
     public MarriageApplicationServiceImpl(MarriageApplicationRepository marriageApplicationRepository,
                                            MarriageService marriageService,
@@ -30,7 +31,8 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
                                            AuditLogService auditLogService,
                                            SecurityUtils securityUtils,
                                            UserRepository userRepository,
-                                           com.ishimwe.digitalmarriagesystem.repository.MarriageRepository marriageRepository) {
+                                           com.ishimwe.digitalmarriagesystem.repository.MarriageRepository marriageRepository,
+                                           EmailService emailService) {
         this.marriageApplicationRepository = marriageApplicationRepository;
         this.marriageService = marriageService;
         this.certificateService = certificateService;
@@ -38,6 +40,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
         this.securityUtils = securityUtils;
         this.userRepository = userRepository;
         this.marriageRepository = marriageRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
             application.setSubmissionDate(LocalDateTime.now());
         }
         if (application.getApplicationStatus() == null) {
-            application.setApplicationStatus("PENDING");
+            application.setApplicationStatus("Pending");
         }
         return marriageApplicationRepository.save(application);
     }
@@ -139,7 +142,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
                 marriage.setApplicant1Id(application.getApplicant1Id());
                 marriage.setApplicant2Id(application.getApplicant2Id());
                 marriage.setMarriageDate(LocalDate.now());
-                marriage.setMarriageStatus("ACTIVE");
+                marriage.setStatus("Active");
                 Marriage savedMarriage = marriageService.saveMarriage(marriage);
 
                 Certificate certificate = new Certificate();
@@ -150,10 +153,22 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
 
             // Audit Log
             AuditLog log = new AuditLog();
-            log.setAction("UPDATED APPLICATION STATUS FROM " + oldStatus + " TO " + status);
+            log.setAction("UPDATE_APPLICATION_STATUS");
+            log.setDescription("Updated application status from " + oldStatus + " to " + status);
             log.setActionDate(LocalDateTime.now());
             log.setUserEmail(securityUtils.getCurrentUserEmail());
             auditLogService.saveAuditLog(log);
+
+            // Send Email Notification
+            try {
+                User applicant = userRepository.findById(application.getApplicant1Id()).orElse(null);
+                if (applicant != null) {
+                    emailService.sendStatusUpdateEmail(applicant.getEmail(), application.getApplicationId().toString(), status);
+                }
+            } catch (Exception e) {
+                // Log error but don't fail transaction
+                System.err.println("Failed to send status update email: " + e.getMessage());
+            }
 
             return updatedApplication;
         }
@@ -163,5 +178,34 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
     @Override
     public List<MarriageApplication> getApplicationsByStatus(String status) {
         return marriageApplicationRepository.findByApplicationStatus(status);
+    }
+
+    @Override
+    @Transactional
+    public MarriageApplication approveByPartner(Long id) {
+        Optional<MarriageApplication> applicationOpt = marriageApplicationRepository.findById(id);
+        if (applicationOpt.isPresent()) {
+            MarriageApplication application = applicationOpt.get();
+            String currentUserEmail = securityUtils.getCurrentUserEmail();
+            User currentUser = userRepository.findByEmail(currentUserEmail)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if (!currentUser.getUserId().equals(application.getApplicant2Id())) {
+                throw new RuntimeException("Only the partner (Applicant 2) can approve this application.");
+            }
+
+            application.setPartner2Approved(true);
+            
+            // Audit Log
+            AuditLog log = new AuditLog();
+            log.setAction("PARTNER_APPROVAL");
+            log.setDescription("Partner " + currentUserEmail + " approved marriage application #" + id);
+            log.setActionDate(LocalDateTime.now());
+            log.setUserEmail(currentUserEmail);
+            auditLogService.saveAuditLog(log);
+
+            return marriageApplicationRepository.save(application);
+        }
+        return null;
     }
 }

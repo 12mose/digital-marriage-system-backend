@@ -19,8 +19,8 @@ public class MarriageServiceImpl implements MarriageService {
 
     @Override
     public Marriage saveMarriage(Marriage marriage) {
-        if (marriage.getMarriageStatus() == null) {
-            marriage.setMarriageStatus("ACTIVE");
+        if (marriage.getStatus() == null) {
+            marriage.setStatus("Active");
         }
         return marriageRepository.save(marriage);
     }
@@ -46,7 +46,7 @@ public class MarriageServiceImpl implements MarriageService {
         Optional<Marriage> marriageOpt = marriageRepository.findById(id);
         if (marriageOpt.isPresent()) {
             Marriage marriage = marriageOpt.get();
-            marriage.setMarriageStatus(status);
+            marriage.setStatus(status);
             return marriageRepository.save(marriage);
         }
         return null;
@@ -54,6 +54,6 @@ public class MarriageServiceImpl implements MarriageService {
 
     @Override
     public List<Marriage> getMarriagesByStatus(String status) {
-        return marriageRepository.findByMarriageStatus(status);
+        return marriageRepository.findByStatus(status);
     }
 }

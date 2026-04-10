@@ -14,4 +14,6 @@ public interface CertificateService {
     void deleteCertificate(Long id);
 
     Certificate updateCertificateNumber(Long id, String certificateNumber);
+
+    Certificate verifyCertificate(String certificateNumber, String verificationCode);
 }

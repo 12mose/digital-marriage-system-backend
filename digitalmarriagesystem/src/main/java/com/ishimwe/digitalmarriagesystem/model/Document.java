@@ -12,6 +12,8 @@ public class Document {
 
     private String documentType;
     private String filePath;
+    private java.time.LocalDateTime uploadDate = java.time.LocalDateTime.now();
+    private String verificationStatus = "Unverified";
     private Long applicationId;
 
     public Document(){}
@@ -46,5 +48,21 @@ public class Document {
 
     public void setApplicationId(Long applicationId) {
         this.applicationId = applicationId;
+    }
+
+    public java.time.LocalDateTime getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(java.time.LocalDateTime uploadDate) {
+        this.uploadDate = uploadDate;
+    }
+
+    public String getVerificationStatus() {
+        return verificationStatus;
+    }
+
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
     }
 }

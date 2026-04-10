@@ -26,6 +26,15 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificate.getCertificateNumber() == null) {
             certificate.setCertificateNumber(generateCertificateNumber());
         }
+        if (certificate.getVerificationCode() == null) {
+            certificate.setVerificationCode(java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        }
+        
+        // Populate new fields
+        certificate.setQrCodeUrl("http://localhost:8081/verify.html?number=" + certificate.getCertificateNumber() + "&code=" + certificate.getVerificationCode());
+        certificate.setDigitallySigned(true);
+        certificate.setSignatureDate(java.time.LocalDateTime.now());
+        
         return certificateRepository.save(certificate);
     }
 
@@ -54,6 +63,12 @@ public class CertificateServiceImpl implements CertificateService {
             return certificateRepository.save(certificate);
         }
         return null;
+    }
+
+    @Override
+    public Certificate verifyCertificate(String certificateNumber, String verificationCode) {
+        return certificateRepository.findByCertificateNumberAndVerificationCode(certificateNumber, verificationCode)
+                .orElse(null);
     }
 
     private String generateCertificateNumber() {

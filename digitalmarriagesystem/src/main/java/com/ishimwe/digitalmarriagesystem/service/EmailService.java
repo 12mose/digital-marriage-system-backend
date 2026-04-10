@@ -22,6 +22,21 @@ public class EmailService {
                 verificationUrl + "\n\n" +
                 "If you did not register for this account, please ignore this email.";
 
+        sendEmail(to, subject, message);
+    }
+
+    public void sendStatusUpdateEmail(String to, String applicationNumber, String newStatus) {
+        String subject = "Application Status Update - Digital Marriage System";
+        String message = "Dear Citizen,\n\n" +
+                "The status of your marriage application (#" + applicationNumber + ") has been updated to: " + newStatus.toUpperCase() + ".\n\n" +
+                "Please log in to your dashboard to view more details.\n\n" +
+                "Best regards,\n" +
+                "Digital Marriage Registration Team";
+
+        sendEmail(to, subject, message);
+    }
+
+    private void sendEmail(String to, String subject, String message) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
         email.setSubject(subject);

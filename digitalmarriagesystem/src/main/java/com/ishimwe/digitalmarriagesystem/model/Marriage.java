@@ -14,9 +14,10 @@ public class Marriage {
     private Long applicant1Id;
     private Long applicant2Id;
     private LocalDate marriageDate;
-    private String marriageLocation;
+    private String marriagePlace;
     private String officiant;
-    private String marriageStatus;
+    private String status = "Active";
+    private Long applicationId;
 
     public Marriage(){}
 
@@ -52,12 +53,12 @@ public class Marriage {
         this.marriageDate = marriageDate;
     }
 
-    public String getMarriageLocation() {
-        return marriageLocation;
+    public String getMarriagePlace() {
+        return marriagePlace;
     }
 
-    public void setMarriageLocation(String marriageLocation) {
-        this.marriageLocation = marriageLocation;
+    public void setMarriagePlace(String marriagePlace) {
+        this.marriagePlace = marriagePlace;
     }
 
     public String getOfficiant() {
@@ -68,11 +69,19 @@ public class Marriage {
         this.officiant = officiant;
     }
 
-    public String getMarriageStatus() {
-        return marriageStatus;
+    public String getStatus() {
+        return status;
     }
 
-    public void setMarriageStatus(String marriageStatus) {
-        this.marriageStatus = marriageStatus;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(Long applicationId) {
+        this.applicationId = applicationId;
     }
 }

@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setLastName("Admin");
             admin.setEmail("admin@dms.com");
             admin.setPassword(passwordEncoder.encode("admin123"));
-            admin.setRole("ADMIN");
+            admin.setRole("Admin");
             admin.setNationalId("10000000000");
             admin.setVerified(true);
             userRepository.save(admin);
@@ -38,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
             officer.setLastName("Officer");
             officer.setEmail("officer@dms.com");
             officer.setPassword(passwordEncoder.encode("officer123"));
-            officer.setRole("OFFICER");
+            officer.setRole("Marriage Officer");
             officer.setNationalId("20000000000");
             officer.setVerified(true);
             userRepository.save(officer);
@@ -51,11 +51,19 @@ public class DataInitializer implements CommandLineRunner {
             citizen.setLastName("Citizen");
             citizen.setEmail("citizen@dms.com");
             citizen.setPassword(passwordEncoder.encode("citizen123"));
-            citizen.setRole("CITIZEN");
+            citizen.setRole("Citizen");
             citizen.setNationalId("30000000000");
             citizen.setVerified(true);
             userRepository.save(citizen);
-            System.out.println(">>> Created Citizen account: citizen@dms.com / citizen123");
         }
+        
+        // Automatically verify all existing users to ensure they can login
+        userRepository.findAll().stream()
+            .filter(u -> !u.isVerified())
+            .forEach(u -> {
+                u.setVerified(true);
+                userRepository.save(u);
+                System.out.println(">>> Verified existing user: " + u.getEmail());
+            });
     }
 }
