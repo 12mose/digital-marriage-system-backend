@@ -7,13 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #ec4899;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
             --bg: #f8fafc;
-            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-glass: rgba(255, 255, 255, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.4);
             --text-main: #1e293b;
             --text-muted: #64748b;
         }
@@ -32,16 +35,45 @@
         /* Login Overlay */
         #loginOverlay {
             position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
+            background: linear-gradient(-45deg, #4f46e5, #818cf8, #ec4899, #6366f1);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             z-index: 2000;
             display: flex; align-items: center; justify-content: center;
+            perspective: 1000px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .login-card {
-            background: white; padding: 40px; border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            width: 100%; max-width: 400px;
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            padding: 48px; border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%; max-width: 440px;
+            border: 1px solid var(--border-glass);
+            animation: float 6s ease-in-out infinite, fadeIn 0.5s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotateX(0); }
+            50% { transform: translateY(-10px) rotateX(2deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .login-logo {
+            width: 80px; height: 80px; background: white; border-radius: 20px;
+            margin: 0 auto 24px; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
         }
 
         /* Header */
@@ -128,7 +160,25 @@
         .btn-success { background: var(--success); color: white; }
 
         input, select, textarea {
-            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px;
+            width: 100%; padding: 14px 16px; border: 2px solid rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px;
+            background: rgba(255,255,255,0.8); transition: all 0.3s; font-size: 0.95rem;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--primary); background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); transform: translateY(-1px);
+        }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.875rem; color: var(--text-main); }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px); filter: brightness(1.1);
         }
 
         .hidden { display: none !important; }
@@ -141,6 +191,22 @@
         .msg-received { background: #e2e8f0; color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 2px; }
         .chat-input-area { display: flex; gap: 12px; }
         .chat-input-area textarea { margin-bottom: 0; resize: none; height: 44px; }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            padding: 16px 24px; border-radius: 12px;
+            color: white; font-weight: 600; z-index: 5000;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -153,36 +219,46 @@
             </select>
         </div>
         <div class="login-card" id="loginFormCard">
-            <h2 style="margin-bottom: 24px; text-align: center;" data-t="welcomeBack">Welcome Back</h2>
+            <div class="login-logo">💍</div>
+            <h2 style="margin-bottom: 8px; text-align: center; color: #1e293b; font-size: 1.75rem;" data-t="welcomeBack">Welcome Back</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem;">Digital Marriage Registration Portal</p>
             <form id="loginForm">
-                <label data-t="email">Email</label>
-                <input type="email" id="loginEmail" value="admin@dms.com" required>
+                <label data-t="email">Email Address</label>
+                <input type="email" id="loginEmail" value="admin@dms.com" placeholder="name@example.com" required>
                 <label data-t="password">Password</label>
-                <input type="password" id="loginPass" value="admin123" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;" data-t="signIn">Sign In</button>
+                <input type="password" id="loginPass" value="admin123" placeholder="••••••••" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1rem; margin-top: 12px;" data-t="signIn">Sign In to Dashboard</button>
             </form>
-            <p style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 0.875rem;">
-                <span data-t="noAccount">Don't have an account?</span> <a href="#" onclick="toggleAuth('register')" data-t="registerNow">Register Now</a>
+            <p style="text-align: center; margin-top: 24px; color: var(--text-muted); font-size: 0.9rem;">
+                <span data-t="noAccount">Don't have an account?</span> <a href="#" onclick="toggleAuth('register')" style="color: var(--primary); font-weight: 700; text-decoration: none;" data-t="registerNow">Register Now</a>
             </p>
         </div>
 
         <div class="login-card hidden" id="registerFormCard">
-            <h2 style="margin-bottom: 24px; text-align: center;" data-t="joinUs">Join Us</h2>
+            <div class="login-logo">✨</div>
+            <h2 style="margin-bottom: 8px; text-align: center; color: #1e293b; font-size: 1.75rem;" data-t="joinUs">Create Account</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem;">Join the Digital Marriage System</p>
             <form id="registerForm">
-                <label data-t="firstName">First Name</label>
-                <input type="text" id="regFirst" required>
-                <label data-t="lastName">Last Name</label>
-                <input type="text" id="regLast" required>
-                <label data-t="email">Email</label>
-                <input type="email" id="regEmail" required>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label data-t="firstName">First Name</label>
+                        <input type="text" id="regFirst" placeholder="Jane" required>
+                    </div>
+                    <div>
+                        <label data-t="lastName">Last Name</label>
+                        <input type="text" id="regLast" placeholder="Doe" required>
+                    </div>
+                </div>
+                <label data-t="email">Email Address</label>
+                <input type="email" id="regEmail" placeholder="jane.doe@example.com" required>
                 <label data-t="nationalId">National ID</label>
-                <input type="text" id="regNationalId" required>
+                <input type="text" id="regNationalId" placeholder="1199..." required>
                 <label data-t="password">Password</label>
-                <input type="password" id="regPass" data-t="password" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%;" data-t="createAccount">Create Account</button>
+                <input type="password" id="regPass" placeholder="••••••••" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1rem; margin-top: 12px;" data-t="createAccount">Start My Application</button>
             </form>
-            <p style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 0.875rem;">
-                <span data-t="alreadyAccount">Already have an account?</span> <a href="#" onclick="toggleAuth('login')" data-t="signIn">Sign In</a>
+            <p style="text-align: center; margin-top: 24px; color: var(--text-muted); font-size: 0.9rem;">
+                <span data-t="alreadyAccount">Already have an account?</span> <a href="#" onclick="toggleAuth('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;" data-t="signIn">Sign In</a>
             </p>
         </div>
     </div>
@@ -417,7 +493,35 @@
                 rejectBtn: "Reject",
                 bookCeremony: "📅 Book Ceremony",
                 systemTitle: "Digital Marriage System",
-                welcomeUser: "Welcome,"
+                welcomeUser: "Welcome,",
+                applicationId: "App ID",
+                applicant1Id: "Applicant 1 ID",
+                applicant2Id: "Applicant 2 ID",
+                submissionDate: "Submission Date",
+                applicationStatus: "Status",
+                marriageId: "Marriage ID",
+                marriageDate: "Marriage Date",
+                status: "Status",
+                certificateId: "Cert ID",
+                certificateNumber: "Cert Number",
+                issueDate: "Issue Date",
+                appointmentId: "Appt ID",
+                appointmentDate: "Date & Time",
+                location: "Location",
+                userId: "User ID",
+                role: "Role",
+                verified: "Verified",
+                email: "Email",
+                reviewDate: "Review Date",
+                rejectionReason: "Rejection Reason",
+                reviewedBy: "Reviewed By",
+                witness1Name: "Witness 1 Name",
+                witness1NationalId: "Witness 1 ID",
+                witness2Name: "Witness 2 Name",
+                witness2NationalId: "Witness 2 ID",
+                partner2Approved: "Partner Approved",
+                controlHeader: "Control",
+                deleteBtn: "Delete"
             },
             rw: {
                 welcomeBack: "Murakaza neza",
@@ -476,7 +580,35 @@
                 rejectBtn: "Anzika",
                 bookCeremony: "📅 Fata gahunda",
                 systemTitle: "Sisitemu yo Gushyingirwa",
-                welcomeUser: "Murakaza neza,"
+                welcomeUser: "Murakaza neza,",
+                applicationId: "ID y'ubusabe",
+                applicant1Id: "ID y'usaba 1",
+                applicant2Id: "ID y'usaba 2",
+                submissionDate: "Itariki yo gutanga",
+                applicationStatus: "Imimerere",
+                marriageId: "ID y'ishyingirwa",
+                marriageDate: "Itariki y'ishyingirwa",
+                status: "Imimerere",
+                certificateId: "ID y'icyangombwa",
+                certificateNumber: "Nimero y'icyangombwa",
+                issueDate: "Itariki cyatanzweho",
+                appointmentId: "ID ya gahunda",
+                appointmentDate: "Itariki n'isaha",
+                location: "Ahantu",
+                userId: "ID y'umukoresha",
+                role: "Inshingano",
+                verified: "Yemejwe",
+                email: "Imeyili",
+                reviewDate: "Itariki yo gusuzuma",
+                rejectionReason: "Impamvu yo kwangirwa",
+                reviewedBy: "Wasuzumwe na",
+                witness1Name: "Umugabo we wa 1",
+                witness1NationalId: "ID y'umugabo wa 1",
+                witness2Name: "Umugabo we wa 2",
+                witness2NationalId: "ID y'umugabo wa 2",
+                partner2Approved: "Uwo mwashyingiranywe yabyemeye",
+                controlHeader: "Igenzura",
+                deleteBtn: "Siba"
             },
             fr: {
                 welcomeBack: "Bon retour",
@@ -535,7 +667,35 @@
                 rejectBtn: "Rejeter",
                 bookCeremony: "📅 Réserver la cérémonie",
                 systemTitle: "Système de Mariage Numérique",
-                welcomeUser: "Bienvenue,"
+                welcomeUser: "Bienvenue,",
+                applicationId: "ID Demande",
+                applicant1Id: "ID Demandeur 1",
+                applicant2Id: "ID Demandeur 2",
+                submissionDate: "Date de soumission",
+                applicationStatus: "Statut",
+                marriageId: "ID Mariage",
+                marriageDate: "Date de mariage",
+                status: "Statut",
+                certificateId: "ID Certificat",
+                certificateNumber: "Numéro de certificat",
+                issueDate: "Date d'émission",
+                appointmentId: "ID RDV",
+                appointmentDate: "Date & Heure",
+                location: "Lieu",
+                userId: "ID Utilisateur",
+                role: "Rôle",
+                verified: "Vérifié",
+                email: "Email",
+                reviewDate: "Date de révision",
+                rejectionReason: "Motif de rejet",
+                reviewedBy: "Révisé par",
+                witness1Name: "Nom Témoin 1",
+                witness1NationalId: "ID Témoin 1",
+                witness2Name: "Nom Témoin 2",
+                witness2NationalId: "ID Témoin 2",
+                partner2Approved: "Partenaire Approuvé",
+                controlHeader: "Contrôle",
+                deleteBtn: "Supprimer"
             }
         };
 
@@ -590,6 +750,14 @@
             }
         });
 
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
         function toggleAuth(view) {
             document.getElementById('loginFormCard').classList.toggle('hidden', view === 'register');
             document.getElementById('registerFormCard').classList.toggle('hidden', view !== 'register');
@@ -611,10 +779,12 @@
                     body: JSON.stringify(userData)
                 });
                 if (res.ok) {
-                    alert('Registration successful! Please verify your email.');
-                    toggleAuth('login');
-                } else { alert('Failed: ' + await res.text()); }
-            } catch (err) { alert('Connection error'); }
+                    showToast('Registration successful! Redirecting to login...', 'success');
+                    setTimeout(() => {
+                        toggleAuth('login');
+                    }, 2000);
+                } else { showToast('Failed: ' + await res.text(), 'error'); }
+            } catch (err) { showToast('Connection error', 'error'); }
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -691,21 +861,28 @@
             const calls = [fetchAPI('/applications'), fetchAPI('/appointments')];
             if (role === 'ADMIN') {
                 // Admins see everything
-                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'), fetchAPI('/auditlogs'));
-            } else if (role === 'OFFICER' || role === 'MARRIAGE OFFICER') {
+                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'), fetchAPI('/auditlogs'), fetchAPI('/reports/stats'));
+            } else if (role === 'OFFICER' || role === 'MARRIAGE OFFICER' || role === 'MARRIAGE_OFFICER') {
                 // Officers see users, marriages, certificates
-                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'), Promise.resolve([]));
+                calls.push(fetchAPI('/users'), fetchAPI('/marriages'), fetchAPI('/certificates'), Promise.resolve([]), Promise.resolve(null));
             } else {
                 // Citizens can only see their related data (filtered by backend usually, but UI handles visibility)
-                calls.push(Promise.resolve([]), Promise.resolve([]), Promise.resolve([]), Promise.resolve([]));
+                calls.push(Promise.resolve([]), Promise.resolve([]), Promise.resolve([]), Promise.resolve([]), Promise.resolve(null));
             }
 
-            const [apps, appts, users, marriages, certs] = await Promise.all(calls);
+            const [apps, appts, users, marriages, certs, logs, stats] = await Promise.all(calls);
             
-            document.getElementById('statUsers').innerText = users?.length || 0;
-            document.getElementById('statPending').innerText = apps?.filter(a => a.applicationStatus === 'Pending' || a.applicationStatus === 'PENDING').length || 0;
-            document.getElementById('statMarriages').innerText = marriages?.filter(m => m.status === 'Active' || m.status === 'ACTIVE').length || 0;
-            document.getElementById('statCertificates').innerText = certs?.length || 0;
+            if (role === 'ADMIN' && stats) {
+                document.getElementById('statUsers').innerText = stats.totalUsers || 0;
+                document.getElementById('statPending').innerText = stats.pendingApplications || 0;
+                document.getElementById('statMarriages').innerText = stats.activeMarriages || 0;
+                document.getElementById('statCertificates').innerText = stats.totalCertificates || 0;
+            } else {
+                document.getElementById('statUsers').innerText = users?.length || 0;
+                document.getElementById('statPending').innerText = apps?.filter(a => a.applicationStatus === 'Pending' || a.applicationStatus === 'PENDING').length || 0;
+                document.getElementById('statMarriages').innerText = marriages?.filter(m => m.status === 'Active' || m.status === 'ACTIVE').length || 0;
+                document.getElementById('statCertificates').innerText = certs?.length || 0;
+            }
         }
 
         function setView(view) {
@@ -768,13 +945,14 @@
             
             cols.forEach(c => { 
                 const th = document.createElement('th'); 
-                th.innerText = c.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); 
+                const label = (translations[lang] && translations[lang][c]) ? translations[lang][c] : c.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                th.innerText = label;
                 head.appendChild(th); 
             });
             
-            if (role !== 'CITIZEN' && (currentView === 'users' || currentView === 'applications')) {
+            if (role === 'ADMIN' || (role !== 'CITIZEN' && (currentView === 'users' || currentView === 'applications'))) {
                 const th = document.createElement('th'); 
-                th.innerText = lang === 'rw' ? 'Ibikorwa' : (lang === 'fr' ? 'Actions' : 'Actions');
+                th.innerText = (translations[lang] && translations[lang].controlHeader) ? translations[lang].controlHeader : (role === 'ADMIN' ? 'Control' : 'Actions');
                 head.appendChild(th);
             }
             
@@ -789,8 +967,13 @@
 
                 cols.forEach(c => {
                     const td = document.createElement('td');
-                    let val = row[c] || '-';
-                    if (c === 'verified') val = val === true ? '✅ Yes' : '❌ No';
+                    let val = row[c];
+                    if (val === null || val === undefined) val = '-';
+                    if (c === 'verified' || typeof val === 'boolean') {
+                        const yesLabel = lang === 'rw' ? 'Yego' : (lang === 'fr' ? 'Oui' : 'Yes');
+                        const noLabel = lang === 'rw' ? 'Oya' : (lang === 'fr' ? 'Non' : 'No');
+                        val = val === true ? '✅ ' + yesLabel : '❌ ' + noLabel;
+                    }
                     
                     if ((c === 'firstName' || c === 'fullName' || c === 'email') && currentView === 'users' && !tr.querySelector('.status-dot-set')) {
                         td.innerHTML = statusDot + val;
@@ -814,19 +997,29 @@
                     tr.appendChild(td);
                 });
                 
-                if (currentView === 'users' && row.email !== currentUser.email && (role === 'ADMIN' || role === 'OFFICER')) {
+                if (currentView === 'users' && row.email !== currentUser.email && (role === 'ADMIN' || role === 'OFFICER' || role === 'MARRIAGE OFFICER' || role === 'MARRIAGE_OFFICER')) {
                     const td = document.createElement('td');
                     td.style.display = 'flex'; td.style.gap = '8px';
                     
                     if (role === 'ADMIN') {
                         if (row.role === 'CITIZEN') {
-                            td.innerHTML += `<button class="btn btn-sm btn-success" onclick="promoteUser(${row.userId}, 'OFFICER')">${translations[lang].promoteOfficer}</button>`;
-                        } else if (row.role === 'OFFICER') {
+                            td.innerHTML += `<button class="btn btn-sm btn-success" onclick="promoteUser(${row.userId}, 'MARRIAGE OFFICER')">${translations[lang].promoteOfficer}</button>`;
+                        } else if (row.role === 'OFFICER' || row.role === 'MARRIAGE OFFICER') {
                             td.innerHTML += `<button class="btn btn-sm btn-primary" style="background:#581c87" onclick="promoteUser(${row.userId}, 'ADMIN')">${translations[lang].promoteAdmin}</button>`;
                         }
+                        td.innerHTML += `<button class="btn btn-sm btn-danger" onclick="deleteItem('users', ${row.userId})">🗑️ ${translations[lang].deleteBtn || 'Delete'}</button>`;
                     }
                     
                     td.innerHTML += `<button class="btn btn-sm btn-primary" onclick="startChat('${row.email}')">${translations[lang].chatBtn}</button>`;
+                    tr.appendChild(td);
+                } else if (role === 'ADMIN' && currentView !== 'auditlogs' && currentView !== 'chat') {
+                    // Add generic delete button for Admin in other views
+                    const td = document.createElement('td');
+                    const idField = currentView === 'marriages' ? 'marriageId' : 
+                                  (currentView === 'certificates' ? 'certificateId' : 
+                                  (currentView === 'applications' ? 'applicationId' : 
+                                  (currentView === 'appointments' ? 'appointmentId' : 'id')));
+                    td.innerHTML = `<button class="btn btn-sm btn-danger" onclick="deleteItem('${currentView}', ${row[idField]})">🗑️ ${translations[lang].deleteBtn || 'Delete'}</button>`;
                     tr.appendChild(td);
                 }
 
@@ -974,9 +1167,29 @@
             }
         }
 
-        async function promoteUser(id, newRole) {
+        async function deleteItem(type, id) {
+            if (!confirm(`Are you sure you want to delete this ${type}? This action cannot be undone.`)) return;
+            try {
+                const response = await fetch(`${API_BASE}/${type}/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('jwt')}` }
+                });
+                if (response.ok) {
+                    showToast('Deleted successfully', 'success');
+                    refreshAllData();
+                    refreshView();
+                } else {
+                    const err = await response.text();
+                    showToast('Delete failed: ' + err, 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting item', 'error');
+            }
+        }
+
+        async function promoteUser(userId, newRole) {
             if (!confirm(`Are you sure you want to promote this user to ${newRole}?`)) return;
-            const res = await fetchAPI(`/users/${id}/role`, {
+            const res = await fetchAPI(`/users/${userId}/role`, {
                 method: 'PUT',
                 body: JSON.stringify({ role: newRole })
             });

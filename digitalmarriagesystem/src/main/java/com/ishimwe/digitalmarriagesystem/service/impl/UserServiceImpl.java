@@ -3,6 +3,7 @@ package com.ishimwe.digitalmarriagesystem.service.impl;
 import com.ishimwe.digitalmarriagesystem.model.User;
 import com.ishimwe.digitalmarriagesystem.repository.UserRepository;
 import com.ishimwe.digitalmarriagesystem.service.UserService;
+import com.ishimwe.digitalmarriagesystem.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,13 +33,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.orElse(null);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     @Override

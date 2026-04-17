@@ -1,0 +1,200 @@
+{
+	"info": {
+		"_postman_id": "8d3e2f5b-1c4a-4d3e-9b2c-8a1f2e3d4c5b",
+		"name": "Digital Marriage System v2.0 - Testing Collection",
+		"description": "API Test Collection for Phase 10: Testing & Debugging. Includes Auth, User Management, Applications, and Certificate verification.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Admin Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@dms.com\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register New Citizen",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"New\",\n    \"lastName\": \"Citizen\",\n    \"email\": \"new.citizen@example.com\",\n    \"password\": \"password123\",\n    \"nationalId\": \"1234567890123456\",\n    \"role\": \"CITIZEN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Marriage Applications",
+			"item": [
+				{
+					"name": "Submit Application",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"applicant1Id\": 3,\n    \"applicant2Id\": 4,\n    \"marriageType\": \"Civil\",\n    \"proposedDate\": \"2026-06-15\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/applications",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"applications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Applications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/applications",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"applications"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Certificates",
+			"item": [
+				{
+					"name": "Verify Certificate (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/certificates/verify?number=CERT-12345&code=A1B2C3D4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"public",
+								"certificates",
+								"verify"
+							],
+							"query": [
+								{
+									"key": "number",
+									"value": "CERT-12345"
+								},
+								{
+									"key": "code",
+									"value": "A1B2C3D4"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

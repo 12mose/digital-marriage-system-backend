@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -44,12 +45,39 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**", "/api/public/**", "/", "/dashboard", "/index.html", "/dashboard.html", "/verify.html", "/static/**").permitAll()
                 .requestMatchers("/api/users/search").authenticated()
-                .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                
+                // User Management: Officers can view, but only Admins can create/promote/delete
+                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                .requestMatchers("/api/users/**").hasRole("ADMIN")
+                
                 .requestMatchers("/api/auditlogs/**", "/api/reports/**").hasRole("ADMIN")
+                
+                // Marriages: Admin/Officer can manage, Citizen can only GET (service filtered)
+                // Delete restricted to Admin
+                .requestMatchers(HttpMethod.DELETE, "/api/marriages/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/marriages/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
                 .requestMatchers("/api/marriages/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
-                .requestMatchers("/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
-                .requestMatchers("/api/certificates/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
-                .requestMatchers("/api/documents/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                
+                // Applications: Admin/Officer can manage, Citizen can apply/approve-partner
+                // Delete restricted to Admin
+                .requestMatchers(HttpMethod.DELETE, "/api/applications/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers(HttpMethod.POST, "/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers(HttpMethod.PUT, "/api/applications/*/partner-approve").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers(HttpMethod.PUT, "/api/applications/*/status").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                .requestMatchers("/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                
+                // Certificates: Admin/Officer manage, Citizen GET own
+                .requestMatchers(HttpMethod.DELETE, "/api/certificates/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/certificates/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers("/api/certificates/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                
+                // Documents: Admin/Officer manage, Citizen GET/POST
+                .requestMatchers(HttpMethod.DELETE, "/api/documents/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/documents/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers(HttpMethod.POST, "/api/documents/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
+                .requestMatchers("/api/documents/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                
                 .requestMatchers("/api/appointments/**").authenticated()
                 .requestMatchers("/api/messages/**").authenticated()
                 .anyRequest().authenticated()

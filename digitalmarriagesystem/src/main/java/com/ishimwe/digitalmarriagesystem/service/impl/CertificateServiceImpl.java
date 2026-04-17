@@ -3,6 +3,8 @@ package com.ishimwe.digitalmarriagesystem.service.impl;
 import com.ishimwe.digitalmarriagesystem.model.Certificate;
 import com.ishimwe.digitalmarriagesystem.repository.CertificateRepository;
 import com.ishimwe.digitalmarriagesystem.service.CertificateService;
+import com.ishimwe.digitalmarriagesystem.exception.ApiException;
+import com.ishimwe.digitalmarriagesystem.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,9 +15,18 @@ import java.util.Optional;
 public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateRepository certificateRepository;
+    private final com.ishimwe.digitalmarriagesystem.security.SecurityUtils securityUtils;
+    private final com.ishimwe.digitalmarriagesystem.repository.UserRepository userRepository;
+    private final com.ishimwe.digitalmarriagesystem.repository.MarriageRepository marriageRepository;
 
-    public CertificateServiceImpl(CertificateRepository certificateRepository) {
+    public CertificateServiceImpl(CertificateRepository certificateRepository,
+                                  com.ishimwe.digitalmarriagesystem.security.SecurityUtils securityUtils,
+                                  com.ishimwe.digitalmarriagesystem.repository.UserRepository userRepository,
+                                  com.ishimwe.digitalmarriagesystem.repository.MarriageRepository marriageRepository) {
         this.certificateRepository = certificateRepository;
+        this.securityUtils = securityUtils;
+        this.userRepository = userRepository;
+        this.marriageRepository = marriageRepository;
     }
 
     @Override
@@ -40,13 +51,39 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<Certificate> getAllCertificates() {
+        String email = securityUtils.getCurrentUserEmail();
+        if (securityUtils.hasRole("CITIZEN") && email != null) {
+            java.util.Optional<com.ishimwe.digitalmarriagesystem.model.User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                Long userId = userOpt.get().getUserId();
+                List<com.ishimwe.digitalmarriagesystem.model.Marriage> marriages = marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
+                List<Long> marriageIds = marriages.stream().map(com.ishimwe.digitalmarriagesystem.model.Marriage::getMarriageId).collect(java.util.stream.Collectors.toList());
+                if (marriageIds.isEmpty()) return java.util.Collections.emptyList();
+                return certificateRepository.findByMarriageIdIn(marriageIds);
+            }
+        }
         return certificateRepository.findAll();
     }
 
     @Override
     public Certificate getCertificateById(Long id) {
-        Optional<Certificate> certificate = certificateRepository.findById(id);
-        return certificate.orElse(null);
+        Optional<Certificate> certificateOpt = certificateRepository.findById(id);
+        if (certificateOpt.isPresent()) {
+            Certificate certificate = certificateOpt.get();
+            if (securityUtils.hasRole("CITIZEN")) {
+                String email = securityUtils.getCurrentUserEmail();
+                java.util.Optional<com.ishimwe.digitalmarriagesystem.model.User> userOpt = userRepository.findByEmail(email);
+                if (userOpt.isPresent()) {
+                    Long userId = userOpt.get().getUserId();
+                    com.ishimwe.digitalmarriagesystem.model.Marriage marriage = marriageRepository.findById(certificate.getMarriageId()).orElse(null);
+                    if (marriage == null || (!userId.equals(marriage.getApplicant1Id()) && !userId.equals(marriage.getApplicant2Id()))) {
+                        throw new ApiException("Unauthorized access to this certificate");
+                    }
+                }
+            }
+            return certificate;
+        }
+        throw new ResourceNotFoundException("Certificate not found with id: " + id);
     }
 
     @Override
@@ -62,13 +99,13 @@ public class CertificateServiceImpl implements CertificateService {
             certificate.setCertificateNumber(certificateNumber);
             return certificateRepository.save(certificate);
         }
-        return null;
+        throw new ResourceNotFoundException("Certificate not found with id: " + id);
     }
 
     @Override
     public Certificate verifyCertificate(String certificateNumber, String verificationCode) {
         return certificateRepository.findByCertificateNumberAndVerificationCode(certificateNumber, verificationCode)
-                .orElse(null);
+                .orElseThrow(() -> new ResourceNotFoundException("No valid certificate found for provided verification details."));
     }
 
     private String generateCertificateNumber() {

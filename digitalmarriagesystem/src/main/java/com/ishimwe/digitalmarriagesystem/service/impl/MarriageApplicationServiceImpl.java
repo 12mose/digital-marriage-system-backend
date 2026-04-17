@@ -5,6 +5,7 @@ import com.ishimwe.digitalmarriagesystem.repository.MarriageApplicationRepositor
 import com.ishimwe.digitalmarriagesystem.repository.UserRepository;
 import com.ishimwe.digitalmarriagesystem.security.SecurityUtils;
 import com.ishimwe.digitalmarriagesystem.service.*;
+import com.ishimwe.digitalmarriagesystem.exception.ApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,10 +48,10 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
     public MarriageApplication saveApplication(MarriageApplication application) {
         // 1. Validation Logic: Distinct applicants
         if (application.getApplicant1Id() == null || application.getApplicant2Id() == null) {
-            throw new RuntimeException("Both applicants must be provided");
+            throw new ApiException("Both applicants must be provided");
         }
         if (application.getApplicant1Id().equals(application.getApplicant2Id())) {
-            throw new RuntimeException("Applicant 1 and Applicant 2 must be different people");
+            throw new ApiException("Applicant 1 and Applicant 2 must be different people");
         }
 
         // 2. Fetch User Profiles
@@ -62,21 +63,21 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
         // 3. Advanced Rule: Age Validation (18+)
         if (applicant1.getBirthDate() != null) {
             if (applicant1.getBirthDate().plusYears(18).isAfter(LocalDate.now())) {
-                throw new RuntimeException("Applicant 1 must be at least 18 years old");
+                throw new ApiException("Applicant 1 must be at least 18 years old");
             }
         }
         if (applicant2.getBirthDate() != null) {
             if (applicant2.getBirthDate().plusYears(18).isAfter(LocalDate.now())) {
-                throw new RuntimeException("Applicant 2 must be at least 18 years old");
+                throw new ApiException("Applicant 2 must be at least 18 years old");
             }
         }
 
         // 4. Advanced Rule: Bigamy Prevention
         if (marriageRepository.isUserAlreadyMarried(application.getApplicant1Id())) {
-            throw new RuntimeException("Applicant 1 is already in an ACTIVE marriage");
+            throw new ApiException("Applicant 1 is already in an ACTIVE marriage");
         }
         if (marriageRepository.isUserAlreadyMarried(application.getApplicant2Id())) {
-            throw new RuntimeException("Applicant 2 is already in an ACTIVE marriage");
+            throw new ApiException("Applicant 2 is already in an ACTIVE marriage");
         }
 
         if (application.getSubmissionDate() == null) {
@@ -112,7 +113,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
                 if (user.isPresent()) {
                     Long userId = user.get().getUserId();
                     if (!userId.equals(application.getApplicant1Id()) && !userId.equals(application.getApplicant2Id())) {
-                        throw new RuntimeException("Unauthorized access to this application");
+                        throw new ApiException("Unauthorized access to this application");
                     }
                 }
             }
@@ -177,6 +178,16 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
 
     @Override
     public List<MarriageApplication> getApplicationsByStatus(String status) {
+        String email = securityUtils.getCurrentUserEmail();
+        if (securityUtils.hasRole("CITIZEN") && email != null) {
+            Optional<User> user = userRepository.findByEmail(email);
+            if (user.isPresent()) {
+                Long userId = user.get().getUserId();
+                return marriageApplicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId).stream()
+                        .filter(a -> a.getApplicationStatus().equalsIgnoreCase(status))
+                        .collect(java.util.stream.Collectors.toList());
+            }
+        }
         return marriageApplicationRepository.findByApplicationStatus(status);
     }
 
@@ -191,7 +202,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             if (!currentUser.getUserId().equals(application.getApplicant2Id())) {
-                throw new RuntimeException("Only the partner (Applicant 2) can approve this application.");
+                throw new ApiException("Only the partner (Applicant 2) can approve this application.");
             }
 
             application.setPartner2Approved(true);
