@@ -767,7 +767,7 @@
 
     <script>
 
-        const API_BASE = window.location.port === '8081' ? '/api' : 'http://localhost:8081/api';
+        const API_BASE = '/api';
         let currentUser = null;
         let currentView = 'applications';
         let token = localStorage.getItem('jwt');
