@@ -37,6 +37,9 @@
             max-width: 1380px; 
             margin: 0 auto; 
             padding: 12px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Layout Grid */
@@ -44,6 +47,8 @@
             display: flex;
             gap: 15px;
             margin-top: 12px;
+            flex: 1; /* Stretch to fill bottom space */
+            min-height: 0;
         }
 
         .sidebar {
@@ -2066,8 +2071,44 @@
             document.getElementById('certModal').classList.add('hidden');
         }
 
-        function downloadAsPNG() {
-            // ... existing downloadAsPNG code ...
+        async function downloadAsPNG() {
+            const frame = document.getElementById('certificateFrame');
+            const btn = event?.currentTarget;
+            const originalText = btn ? btn.innerText : "Download PNG";
+            
+            try {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = "Processing...";
+                }
+                
+                // Wait for any images/fonts to stabilize
+                await new Promise(r => setTimeout(r, 600));
+
+                const canvas = await html2canvas(frame, {
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    allowTaint: true
+                });
+                
+                const link = document.createElement('a');
+                const certNum = document.getElementById('certNumber').innerText || 'Certificate';
+                link.download = `Marriage_Certificate_${certNum}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                showToast("Certificate downloaded successfully!", "success");
+            } catch (err) {
+                console.error("Download error:", err);
+                showToast("Failed to generate certificate image.", "error");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
         }
 
         async function exportToCSV(type) {
