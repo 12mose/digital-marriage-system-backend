@@ -13,7 +13,7 @@ public interface MarriageApplicationService {
 
     void deleteApplication(Long id);
 
-    MarriageApplication updateApplicationStatus(Long id, String status);
+    MarriageApplication updateApplicationStatus(Long id, String status, String reason);
 
     List<MarriageApplication> getApplicationsByStatus(String status);
 

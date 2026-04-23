@@ -43,11 +43,11 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(userActivityFilter, JwtAuthenticationFilter.class)
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**", "/api/public/**", "/", "/dashboard", "/index.html", "/dashboard.html", "/verify.html", "/static/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/public/**", "/", "/dashboard", "/index.html", "/dashboard.html", "/verify.html", "/static/**", "/favicon.ico").permitAll()
                 .requestMatchers("/api/users/search").authenticated()
                 
-                // User Management: Officers can view, but only Admins can create/promote/delete
-                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                // User Management: Officers/Citizens can view basic profile, but only Admins can create/promote/delete
+                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
                 
                 .requestMatchers("/api/auditlogs/**", "/api/reports/**").hasRole("ADMIN")
@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
                 .requestMatchers(HttpMethod.POST, "/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
                 .requestMatchers(HttpMethod.PUT, "/api/applications/*/partner-approve").hasAnyRole("ADMIN", "MARRIAGE_OFFICER", "CITIZEN")
-                .requestMatchers(HttpMethod.PUT, "/api/applications/*/status").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
+                .requestMatchers(HttpMethod.PUT, "/api/applications/*/status").hasRole("MARRIAGE_OFFICER")
                 .requestMatchers("/api/applications/**").hasAnyRole("ADMIN", "MARRIAGE_OFFICER")
                 
                 // Certificates: Admin/Officer manage, Citizen GET own

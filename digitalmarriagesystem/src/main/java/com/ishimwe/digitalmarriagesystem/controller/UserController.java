@@ -38,9 +38,12 @@ public class UserController {
 
     @PutMapping("/{id}/role")
     public User updateRole(@PathVariable Long id, @RequestBody java.util.Map<String, String> request) {
-        User user = userService.getUserById(id);
-        user.setRole(request.get("role").toUpperCase());
-        return userService.saveUser(user);
+        return userService.changeRole(id, request.get("role").toUpperCase());
+    }
+
+    @PutMapping("/{id}/profile")
+    public User updateUser(@PathVariable Long id, @RequestBody User user) {
+        return userService.updateUser(id, user);
     }
 
     @DeleteMapping("/{id}")

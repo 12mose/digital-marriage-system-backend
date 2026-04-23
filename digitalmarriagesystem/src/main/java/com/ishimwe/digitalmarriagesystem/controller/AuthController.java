@@ -48,7 +48,7 @@ public class AuthController {
             
             User user = userRepository.findByEmail(loginRequest.getEmail()).get();
 
-            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole(), user.getUserId()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole(), user.getUserId(), user.getFirstName(), user.getLastName()));
         } catch (org.springframework.security.authentication.DisabledException e) {
             return ResponseEntity.status(403).body("Account not verified. Please check your email.");
         } catch (Exception e) {

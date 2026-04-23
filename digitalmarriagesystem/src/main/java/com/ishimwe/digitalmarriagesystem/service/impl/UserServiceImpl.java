@@ -44,6 +44,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User updateUser(Long id, User userDetails) {
+        User user = getUserById(id);
+        user.setFirstName(userDetails.getFirstName());
+        user.setLastName(userDetails.getLastName());
+        user.setEmail(userDetails.getEmail());
+        user.setNationalId(userDetails.getNationalId());
+        if (userDetails.getRole() != null) user.setRole(userDetails.getRole());
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User changeRole(Long id, String role) {
+        User user = getUserById(id);
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
+    @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

@@ -9,13 +9,16 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @org.springframework.beans.factory.annotation.Value("${app.base.url:http://localhost:8080}")
+    private String appBaseUrl;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     public void sendVerificationEmail(String to, String token) {
         String subject = "Email Verification - Digital Marriage System";
-        String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + token;
+        String verificationUrl = appBaseUrl + "/api/auth/verify?token=" + token;
         
         String message = "Welcome to the Digital Marriage Registration System!\n\n" +
                 "Please click the link below to verify your email address and activate your account:\n" +

@@ -55,15 +55,7 @@ public class DataInitializer implements CommandLineRunner {
             citizen.setNationalId("30000000000");
             citizen.setVerified(true);
             userRepository.save(citizen);
+            System.out.println(">>> Created Citizen account: citizen@dms.com / citizen123");
         }
-        
-        // Automatically verify all existing users to ensure they can login
-        userRepository.findAll().stream()
-            .filter(u -> !u.isVerified())
-            .forEach(u -> {
-                u.setVerified(true);
-                userRepository.save(u);
-                System.out.println(">>> Verified existing user: " + u.getEmail());
-            });
     }
 }

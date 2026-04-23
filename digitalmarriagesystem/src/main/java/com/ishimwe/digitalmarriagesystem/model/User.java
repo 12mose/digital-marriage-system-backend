@@ -21,8 +21,19 @@ public class User {
     private boolean verified = false;
     private String verificationToken;
     private java.time.LocalDateTime lastActive;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String profilePicture;
  
     public User(){}
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 
     public String getStatus() {
         return status;

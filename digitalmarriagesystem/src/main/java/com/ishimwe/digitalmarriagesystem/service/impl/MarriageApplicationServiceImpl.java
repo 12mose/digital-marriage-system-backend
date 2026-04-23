@@ -129,12 +129,23 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
 
     @Override
     @Transactional
-    public MarriageApplication updateApplicationStatus(Long id, String status) {
+    public MarriageApplication updateApplicationStatus(Long id, String status, String reason) {
         Optional<MarriageApplication> applicationOpt = marriageApplicationRepository.findById(id);
         if (applicationOpt.isPresent()) {
             MarriageApplication application = applicationOpt.get();
             String oldStatus = application.getApplicationStatus();
+            
             application.setApplicationStatus(status);
+            application.setReviewDate(LocalDateTime.now());
+            application.setRejectionReason(reason);
+            
+            // Set Reviewed By
+            User currentUser = userRepository.findByEmail(securityUtils.getCurrentUserEmail()).orElse(null);
+            if (currentUser != null) {
+                application.setReviewedBy(currentUser.getUserId());
+            }
+
+            System.out.println("DEBUG: Updating Application #" + id + " with Status: " + status + " and Reason: " + reason);
             MarriageApplication updatedApplication = marriageApplicationRepository.save(application);
 
             // Workflow Logic: Automatically create Marriage and Certificate if APPROVED
