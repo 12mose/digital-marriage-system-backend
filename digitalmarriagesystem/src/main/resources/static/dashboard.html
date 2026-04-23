@@ -2058,7 +2058,9 @@
 
             // Access Control: Hide download for Admins
             const downloadBtn = document.getElementById('certDownloadAction');
-            if (currentUser.role === 'ADMIN') {
+            const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN';
+            
+            if (isAdmin) {
                 downloadBtn.classList.add('hidden');
             } else {
                 downloadBtn.classList.remove('hidden');
