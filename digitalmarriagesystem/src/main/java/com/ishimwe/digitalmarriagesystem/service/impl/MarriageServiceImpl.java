@@ -40,10 +40,14 @@ public class MarriageServiceImpl implements MarriageService {
             java.util.Optional<com.ishimwe.digitalmarriagesystem.model.User> user = userRepository.findByEmail(email);
             if (user.isPresent()) {
                 Long userId = user.get().getUserId();
-                return marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
+                List<Marriage> marriages = marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
+                populateNames(marriages);
+                return marriages;
             }
         }
-        return marriageRepository.findAll();
+        List<Marriage> marriages = marriageRepository.findAll();
+        populateNames(marriages);
+        return marriages;
     }
 
     @Override
@@ -61,6 +65,7 @@ public class MarriageServiceImpl implements MarriageService {
                     }
                 }
             }
+            populateNames(marriage);
             return marriage;
         }
         throw new ResourceNotFoundException("Marriage record not found with id: " + id);
@@ -93,11 +98,26 @@ public class MarriageServiceImpl implements MarriageService {
             java.util.Optional<com.ishimwe.digitalmarriagesystem.model.User> user = userRepository.findByEmail(email);
             if (user.isPresent()) {
                 Long userId = user.get().getUserId();
-                return marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId).stream()
+                List<Marriage> marriages = marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId).stream()
                         .filter(m -> m.getStatus().equalsIgnoreCase(finalStatus))
                         .collect(java.util.stream.Collectors.toList());
+                populateNames(marriages);
+                return marriages;
             }
         }
-        return marriageRepository.findByStatus(finalStatus);
+        List<Marriage> marriages = marriageRepository.findByStatus(finalStatus);
+        populateNames(marriages);
+        return marriages;
+    }
+
+    private void populateNames(Marriage marriage) {
+        if (marriage == null) return;
+        userRepository.findById(marriage.getApplicant1Id()).ifPresent(u -> marriage.setApplicant1Name(u.getFirstName() + " " + u.getLastName()));
+        userRepository.findById(marriage.getApplicant2Id()).ifPresent(u -> marriage.setApplicant2Name(u.getFirstName() + " " + u.getLastName()));
+    }
+
+    private void populateNames(List<Marriage> marriages) {
+        if (marriages == null) return;
+        marriages.forEach(this::populateNames);
     }
 }

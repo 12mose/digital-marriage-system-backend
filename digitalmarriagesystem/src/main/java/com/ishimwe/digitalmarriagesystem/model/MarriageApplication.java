@@ -29,7 +29,17 @@ public class MarriageApplication {
     // New Fields: Partner Consent
     private boolean partner2Approved = false;
 
+    @Transient
+    private String applicant1Name;
+    @Transient
+    private String applicant2Name;
+
     public MarriageApplication(){}
+
+    public String getApplicant1Name() { return applicant1Name; }
+    public void setApplicant1Name(String applicant1Name) { this.applicant1Name = applicant1Name; }
+    public String getApplicant2Name() { return applicant2Name; }
+    public void setApplicant2Name(String applicant2Name) { this.applicant2Name = applicant2Name; }
 
     public Long getApplicationId() { return applicationId; }
     public void setApplicationId(Long applicationId) { this.applicationId = applicationId; }

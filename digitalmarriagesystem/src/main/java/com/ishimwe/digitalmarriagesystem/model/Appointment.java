@@ -24,6 +24,12 @@ public class Appointment {
 
     private LocalDateTime createdDate = LocalDateTime.now();
 
+    @Transient
+    private String applicantNames;
+
+    public String getApplicantNames() { return applicantNames; }
+    public void setApplicantNames(String applicantNames) { this.applicantNames = applicantNames; }
+
     public Long getAppointmentId() {
         return appointmentId;
     }

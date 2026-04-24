@@ -96,10 +96,14 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
             Optional<User> user = userRepository.findByEmail(email);
             if (user.isPresent()) {
                 Long userId = user.get().getUserId();
-                return marriageApplicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
+                List<MarriageApplication> apps = marriageApplicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
+                populateNames(apps);
+                return apps;
             }
         }
-        return marriageApplicationRepository.findAll();
+        List<MarriageApplication> apps = marriageApplicationRepository.findAll();
+        populateNames(apps);
+        return apps;
     }
 
     @Override
@@ -117,6 +121,7 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
                     }
                 }
             }
+            populateNames(application);
             return application;
         }
         return null;
@@ -194,12 +199,16 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
             Optional<User> user = userRepository.findByEmail(email);
             if (user.isPresent()) {
                 Long userId = user.get().getUserId();
-                return marriageApplicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId).stream()
+                List<MarriageApplication> apps = marriageApplicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId).stream()
                         .filter(a -> a.getApplicationStatus().equalsIgnoreCase(status))
                         .collect(java.util.stream.Collectors.toList());
+                populateNames(apps);
+                return apps;
             }
         }
-        return marriageApplicationRepository.findByApplicationStatus(status);
+        List<MarriageApplication> apps = marriageApplicationRepository.findByApplicationStatus(status);
+        populateNames(apps);
+        return apps;
     }
 
     @Override
@@ -229,5 +238,16 @@ public class MarriageApplicationServiceImpl implements MarriageApplicationServic
             return marriageApplicationRepository.save(application);
         }
         return null;
+    }
+
+    private void populateNames(MarriageApplication app) {
+        if (app == null) return;
+        userRepository.findById(app.getApplicant1Id()).ifPresent(u -> app.setApplicant1Name(u.getFirstName() + " " + u.getLastName()));
+        userRepository.findById(app.getApplicant2Id()).ifPresent(u -> app.setApplicant2Name(u.getFirstName() + " " + u.getLastName()));
+    }
+
+    private void populateNames(List<MarriageApplication> apps) {
+        if (apps == null) return;
+        apps.forEach(this::populateNames);
     }
 }

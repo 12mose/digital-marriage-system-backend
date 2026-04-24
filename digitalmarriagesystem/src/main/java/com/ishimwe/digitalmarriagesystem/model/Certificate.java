@@ -23,7 +23,13 @@ public class Certificate {
 
     private LocalDateTime signatureDate;
 
+    @Transient
+    private String spouseNames;
+
     public Certificate(){}
+
+    public String getSpouseNames() { return spouseNames; }
+    public void setSpouseNames(String spouseNames) { this.spouseNames = spouseNames; }
 
     public Long getCertificateId() {
         return certificateId;

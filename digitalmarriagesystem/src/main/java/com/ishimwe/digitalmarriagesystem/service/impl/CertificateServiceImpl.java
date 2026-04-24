@@ -59,10 +59,14 @@ public class CertificateServiceImpl implements CertificateService {
                 List<com.ishimwe.digitalmarriagesystem.model.Marriage> marriages = marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
                 List<Long> marriageIds = marriages.stream().map(com.ishimwe.digitalmarriagesystem.model.Marriage::getMarriageId).collect(java.util.stream.Collectors.toList());
                 if (marriageIds.isEmpty()) return java.util.Collections.emptyList();
-                return certificateRepository.findByMarriageIdIn(marriageIds);
+                List<Certificate> certs = certificateRepository.findByMarriageIdIn(marriageIds);
+                populateNames(certs);
+                return certs;
             }
         }
-        return certificateRepository.findAll();
+        List<Certificate> certs = certificateRepository.findAll();
+        populateNames(certs);
+        return certs;
     }
 
     @Override
@@ -90,6 +94,7 @@ public class CertificateServiceImpl implements CertificateService {
                     }
                 }
             }
+            populateNames(certificate);
             return certificate;
         }
         throw new ResourceNotFoundException("Certificate not found with id: " + id);
@@ -119,5 +124,21 @@ public class CertificateServiceImpl implements CertificateService {
 
     private String generateCertificateNumber() {
         return "CERT-" + System.currentTimeMillis();
+    }
+
+    private void populateNames(Certificate cert) {
+        if (cert == null) return;
+        marriageRepository.findById(cert.getMarriageId()).ifPresent(m -> {
+            StringBuilder names = new StringBuilder();
+            userRepository.findById(m.getApplicant1Id()).ifPresent(u -> names.append(u.getFirstName()).append(" ").append(u.getLastName()));
+            names.append(" & ");
+            userRepository.findById(m.getApplicant2Id()).ifPresent(u -> names.append(u.getFirstName()).append(" ").append(u.getLastName()));
+            cert.setSpouseNames(names.toString());
+        });
+    }
+
+    private void populateNames(List<Certificate> certs) {
+        if (certs == null) return;
+        certs.forEach(this::populateNames);
     }
 }

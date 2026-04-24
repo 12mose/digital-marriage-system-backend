@@ -40,10 +40,14 @@ public class AppointmentServiceImpl implements AppointmentService {
                 List<com.ishimwe.digitalmarriagesystem.model.MarriageApplication> apps = applicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
                 List<Long> appIds = apps.stream().map(com.ishimwe.digitalmarriagesystem.model.MarriageApplication::getApplicationId).collect(java.util.stream.Collectors.toList());
                 if (appIds.isEmpty()) return java.util.Collections.emptyList();
-                return appointmentRepository.findByApplicationIdIn(appIds);
+                List<Appointment> appts = appointmentRepository.findByApplicationIdIn(appIds);
+                populateNames(appts);
+                return appts;
             }
         }
-        return appointmentRepository.findAll();
+        List<Appointment> appts = appointmentRepository.findAll();
+        populateNames(appts);
+        return appts;
     }
 
     @Override
@@ -56,12 +60,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                 List<com.ishimwe.digitalmarriagesystem.model.MarriageApplication> apps = applicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
                 List<Long> appIds = apps.stream().map(com.ishimwe.digitalmarriagesystem.model.MarriageApplication::getApplicationId).collect(java.util.stream.Collectors.toList());
                 if (appIds.isEmpty()) return java.util.Collections.emptyList();
-                return appointmentRepository.findByApplicationIdIn(appIds).stream()
+                List<Appointment> appts = appointmentRepository.findByApplicationIdIn(appIds).stream()
                         .filter(a -> a.getStatus() != null && a.getStatus().equalsIgnoreCase(status))
                         .collect(java.util.stream.Collectors.toList());
+                populateNames(appts);
+                return appts;
             }
         }
-        return appointmentRepository.findByStatus(status);
+        List<Appointment> appts = appointmentRepository.findByStatus(status);
+        populateNames(appts);
+        return appts;
     }
 
     @Override
@@ -80,6 +88,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     }
                 }
             }
+            populateNames(appointment);
             return appointment;
         }
         return null;
@@ -98,7 +107,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                 }
             }
         }
-        return appointmentRepository.findByApplicationId(applicationId);
+        List<Appointment> appts = appointmentRepository.findByApplicationId(applicationId);
+        populateNames(appts);
+        return appts;
     }
 
     @Override
@@ -110,5 +121,21 @@ public class AppointmentServiceImpl implements AppointmentService {
             return appointmentRepository.save(appointment);
         }
         return null;
+    }
+
+    private void populateNames(Appointment appt) {
+        if (appt == null) return;
+        applicationRepository.findById(appt.getApplicationId()).ifPresent(app -> {
+            StringBuilder names = new StringBuilder();
+            userRepository.findById(app.getApplicant1Id()).ifPresent(u -> names.append(u.getFirstName()).append(" ").append(u.getLastName()));
+            names.append(" & ");
+            userRepository.findById(app.getApplicant2Id()).ifPresent(u -> names.append(u.getFirstName()).append(" ").append(u.getLastName()));
+            appt.setApplicantNames(names.toString());
+        });
+    }
+
+    private void populateNames(List<Appointment> appts) {
+        if (appts == null) return;
+        appts.forEach(this::populateNames);
     }
 }
