@@ -203,13 +203,7 @@
         }
 
         /* Login & Modals */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: #f1f5f9;
-            z-index: 4000;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
+
 
         .login-wrapper {
             display: flex;
@@ -321,7 +315,7 @@
 
         .modal-overlay {
             position: fixed; inset: 0;
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.4); /* Lighter backdrop */
             backdrop-filter: blur(8px);
             z-index: 4000;
             display: flex; align-items: flex-start; justify-content: center;
@@ -548,7 +542,7 @@
                     <label data-t="password">Password</label>
                     <input type="password" id="regPass" placeholder="••••••••" required>
                     <label data-t="birthDate">Birth Date</label>
-                    <input type="date" id="regBirth" required>
+                    <input type="date" id="regBirth" required max="2010-01-01" min="1920-01-01">
                     <label data-t="profilePhoto">Profile Photo</label>
                     <input type="file" id="regPhoto" accept="image/*">
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1rem; border-radius: 14px; margin-top: 10px;" data-t="createAccount">Get Started</button>
@@ -665,7 +659,7 @@
 
                 <!-- New Application Modal -->
                 <div id="newAppModal" class="modal-overlay hidden">
-                    <div class="modal-content" style="max-width:480px; padding:18px;">
+                    <div class="modal-content" style="max-width:480px; padding:24px; background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
                         <h3 style="margin-bottom:10px; color:var(--primary); font-size:0.95rem;" data-t="applyMarriage">Apply for Marriage</h3>
                         <p style="color:#64748b; margin-bottom:10px; font-size:0.78rem;" data-t="partnerEmailHint">Enter the email address of the person you intend to marry.</p>
                         <div class="form-group">
@@ -1324,13 +1318,26 @@
                 profilePicture = await compressImage(rawBase64);
             }
 
+            const birthDateStr = document.getElementById('regBirth').value;
+            if (birthDateStr) {
+                const birthDate = new Date(birthDateStr);
+                const year = birthDate.getFullYear();
+                const currentYear = new Date().getFullYear();
+                if (year < 1900 || year > currentYear - 16) {
+                    showToast('Please enter a valid birth date (Must be at least 16 years old)', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                    return;
+                }
+            }
+
             const userData = {
                 firstName: document.getElementById('regFirst').value.trim(),
                 lastName: document.getElementById('regLast').value.trim(),
                 email: document.getElementById('regEmail').value.trim(),
                 nationalId: document.getElementById('regNationalId').value.trim(),
                 password: document.getElementById('regPass').value,
-                birthDate: document.getElementById('regBirth').value,
+                birthDate: birthDateStr,
                 profilePicture: profilePicture,
                 role: 'CITIZEN'
             };
@@ -1342,25 +1349,9 @@
                 });
                 
                 if (res.ok) {
-                    showToast('Registration successful! Logging you in...', 'success');
-                    
-                    // Auto-login after successful registration
-                    const loginRes = await fetch(`${API_BASE}/auth/login`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: userData.email, password: userData.password })
-                    });
-                    
-                    if (loginRes.ok) {
-                        const data = await loginRes.json();
-                        currentUser = data; 
-                        token = data.token;
-                        localStorage.setItem('jwt', token);
-                        localStorage.setItem('user', JSON.stringify(data));
-                        showDashboard();
-                    } else {
-                        showToast('Registration succeeded, but auto-login failed. Please sign in manually.', 'warning');
-                        toggleAuth('login');
-                    }
+                    showToast('Registration successful! Please sign in with your credentials.', 'success');
+                    e.target.reset(); // Clear the form
+                    toggleAuth('login');
                 } else { 
                     showToast('Registration failed: ' + await res.text(), 'error'); 
                 }
