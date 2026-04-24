@@ -9,6 +9,8 @@ public interface CertificateService {
 
     List<Certificate> getAllCertificates();
 
+    List<Certificate> getCertificatesByStatus(String status);
+
     Certificate getCertificateById(Long id);
 
     void deleteCertificate(Long id);

@@ -22,7 +22,10 @@ public class CertificateController {
     }
 
     @GetMapping
-    public List<Certificate> getAllCertificates() {
+    public List<Certificate> getAllCertificates(@RequestParam(required = false) String status) {
+        if (status != null && !status.isEmpty()) {
+            return certificateService.getCertificatesByStatus(status);
+        }
         return certificateService.getAllCertificates();
     }
 

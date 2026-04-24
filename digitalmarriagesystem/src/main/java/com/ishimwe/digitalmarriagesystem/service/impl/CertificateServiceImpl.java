@@ -66,6 +66,15 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    public List<Certificate> getCertificatesByStatus(String status) {
+        if ("Approved".equalsIgnoreCase(status)) {
+            return getAllCertificates();
+        } else {
+            return java.util.Collections.emptyList();
+        }
+    }
+
+    @Override
     public Certificate getCertificateById(Long id) {
         Optional<Certificate> certificateOpt = certificateRepository.findById(id);
         if (certificateOpt.isPresent()) {

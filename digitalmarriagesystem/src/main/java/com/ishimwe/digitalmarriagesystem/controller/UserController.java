@@ -22,7 +22,10 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers(){
+    public List<User> getUsers(@RequestParam(required = false) String status){
+        if (status != null && !status.isEmpty()) {
+            return userService.getUsersByStatus(status);
+        }
         return userService.getAllUsers();
     }
 

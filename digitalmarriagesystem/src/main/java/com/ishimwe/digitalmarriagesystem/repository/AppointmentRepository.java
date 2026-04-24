@@ -9,4 +9,5 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByApplicationId(Long applicationId);
     List<Appointment> findByApplicationIdIn(List<Long> applicationIds);
+    List<Appointment> findByStatus(String status);
 }

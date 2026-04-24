@@ -1518,6 +1518,8 @@
                 await loadMessages();
                 await markRead();
             } else {
+                const sFilter = document.getElementById('statusFilter');
+                if (sFilter) sFilter.value = ""; // Reset filter on view change
                 refreshView();
             }
 

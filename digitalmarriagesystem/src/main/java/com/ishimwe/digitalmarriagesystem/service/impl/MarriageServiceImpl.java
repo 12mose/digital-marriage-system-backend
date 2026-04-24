@@ -84,17 +84,20 @@ public class MarriageServiceImpl implements MarriageService {
 
     @Override
     public List<Marriage> getMarriagesByStatus(String status) {
+        String queryStatus = status;
+        if ("Approved".equalsIgnoreCase(status)) queryStatus = "Active";
+        
+        final String finalStatus = queryStatus;
         String email = securityUtils.getCurrentUserEmail();
         if (securityUtils.hasRole("CITIZEN") && email != null) {
             java.util.Optional<com.ishimwe.digitalmarriagesystem.model.User> user = userRepository.findByEmail(email);
             if (user.isPresent()) {
                 Long userId = user.get().getUserId();
-                // Filter all user marriages by status manually or add a repo method
                 return marriageRepository.findByApplicant1IdOrApplicant2Id(userId, userId).stream()
-                        .filter(m -> m.getStatus().equalsIgnoreCase(status))
+                        .filter(m -> m.getStatus().equalsIgnoreCase(finalStatus))
                         .collect(java.util.stream.Collectors.toList());
             }
         }
-        return marriageRepository.findByStatus(status);
+        return marriageRepository.findByStatus(finalStatus);
     }
 }

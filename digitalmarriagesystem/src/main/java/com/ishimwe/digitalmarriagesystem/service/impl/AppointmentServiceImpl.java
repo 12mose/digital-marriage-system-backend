@@ -47,6 +47,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<Appointment> getAppointmentsByStatus(String status) {
+        String email = securityUtils.getCurrentUserEmail();
+        if (securityUtils.hasRole("CITIZEN") && email != null) {
+            java.util.Optional<com.ishimwe.digitalmarriagesystem.model.User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                Long userId = userOpt.get().getUserId();
+                List<com.ishimwe.digitalmarriagesystem.model.MarriageApplication> apps = applicationRepository.findByApplicant1IdOrApplicant2Id(userId, userId);
+                List<Long> appIds = apps.stream().map(com.ishimwe.digitalmarriagesystem.model.MarriageApplication::getApplicationId).collect(java.util.stream.Collectors.toList());
+                if (appIds.isEmpty()) return java.util.Collections.emptyList();
+                return appointmentRepository.findByApplicationIdIn(appIds).stream()
+                        .filter(a -> a.getStatus() != null && a.getStatus().equalsIgnoreCase(status))
+                        .collect(java.util.stream.Collectors.toList());
+            }
+        }
+        return appointmentRepository.findByStatus(status);
+    }
+
+    @Override
     public Appointment getAppointmentById(Long id) {
         Optional<Appointment> appointmentOpt = appointmentRepository.findById(id);
         if (appointmentOpt.isPresent()) {

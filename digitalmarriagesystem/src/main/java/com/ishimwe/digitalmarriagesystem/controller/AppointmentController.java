@@ -22,7 +22,10 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<Appointment> getAllAppointments() {
+    public List<Appointment> getAllAppointments(@RequestParam(required = false) String status) {
+        if (status != null && !status.isEmpty()) {
+            return appointmentService.getAppointmentsByStatus(status);
+        }
         return appointmentService.getAllAppointments();
     }
 

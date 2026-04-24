@@ -11,5 +11,6 @@ public interface UserService {
     User getUserByEmail(String email);
     User updateUser(Long id, User user);
     User changeRole(Long id, String role);
+    List<User> getUsersByStatus(String status);
     void deleteUser(Long id);
 }

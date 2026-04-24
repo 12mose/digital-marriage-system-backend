@@ -62,6 +62,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUsersByStatus(String status) {
+        if ("Approved".equalsIgnoreCase(status)) {
+            return userRepository.findAll().stream().filter(User::isVerified).collect(java.util.stream.Collectors.toList());
+        } else if ("Pending".equalsIgnoreCase(status)) {
+            return userRepository.findAll().stream().filter(u -> !u.isVerified()).collect(java.util.stream.Collectors.toList());
+        } else if ("Rejected".equalsIgnoreCase(status)) {
+            return userRepository.findAll().stream().filter(u -> "Rejected".equalsIgnoreCase(u.getStatus())).collect(java.util.stream.Collectors.toList());
+        }
+        return userRepository.findAll();
+    }
+
+    @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
