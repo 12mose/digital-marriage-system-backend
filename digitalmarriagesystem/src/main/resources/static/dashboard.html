@@ -1337,7 +1337,7 @@
             const userData = {
                 firstName: document.getElementById('regFirst').value.trim(),
                 lastName: document.getElementById('regLast').value.trim(),
-                email: document.getElementById('regEmail').value.trim(),
+                email: document.getElementById('regEmail').value.trim().toLowerCase(),
                 nationalId: document.getElementById('regNationalId').value.trim(),
                 password: document.getElementById('regPass').value,
                 birthDate: birthDateStr,
@@ -1368,7 +1368,7 @@
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPass').value;
             try {
                 const res = await fetch(`${API_BASE}/auth/login`, {
@@ -2001,12 +2001,18 @@
         }
 
         async function submitNewApplication() {
-            const partnerEmail = document.getElementById('partnerEmail').value;
+            const partnerEmail = document.getElementById('partnerEmail').value.trim().toLowerCase();
             const errorDiv = document.getElementById('appError');
             const submitBtn = document.querySelector('button[onclick="submitNewApplication()"]');
             
             if (!partnerEmail) {
                 errorDiv.innerText = 'Please enter your partner\'s email.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (partnerEmail === currentUser.email.toLowerCase()) {
+                errorDiv.innerText = 'You cannot apply for marriage with yourself.';
                 errorDiv.style.display = 'block';
                 return;
             }

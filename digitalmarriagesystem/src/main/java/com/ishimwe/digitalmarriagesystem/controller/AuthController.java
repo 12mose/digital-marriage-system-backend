@@ -39,14 +39,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
+            String email = loginRequest.getEmail() != null ? loginRequest.getEmail().toLowerCase() : "";
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(email, loginRequest.getPassword())
             );
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String jwt = jwtUtils.generateToken(userDetails);
             
-            User user = userRepository.findByEmail(loginRequest.getEmail()).get();
+            User user = userRepository.findByEmail(email).get();
 
             return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole(), user.getUserId(), user.getFirstName(), user.getLastName()));
         } catch (org.springframework.security.authentication.DisabledException e) {
@@ -58,6 +59,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
+        if (user.getEmail() != null) {
+            user.setEmail(user.getEmail().toLowerCase());
+        }
+        
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Email already registered.");
         }

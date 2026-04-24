@@ -22,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
+        if (user.getEmail() != null) {
+            user.setEmail(user.getEmail().toLowerCase());
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -39,8 +42,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        String searchEmail = (email != null) ? email.toLowerCase() : "";
+        return userRepository.findByEmail(searchEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + searchEmail));
     }
 
     @Override
